@@ -13,6 +13,7 @@ license=('GPL-3.0-or-later')
 depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'layer-shell-qt' 'kcoreaddons' 'ki18n' 'dbus' 'wayland')
 makedepends=('git' 'cmake' 'ninja' 'qt6-shadertools' 'extra-cmake-modules' 'wayland')
 optdepends=('claude-code: the assistant, signed in with your own account instead of an API key'
+            'cranked-audio: per-app volume mixer card right inside the island'
             'cava: real spectrum analysis instead of the synthetic one'
             'wireplumber: volume control from the island'
             'kde-cli-tools: launching apps from notifications'

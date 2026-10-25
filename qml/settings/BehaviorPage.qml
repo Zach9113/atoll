@@ -63,7 +63,7 @@ SettingsPage {
 
         NumberSetting {
             label: qsTr("Mixer volume step")
-            description: qsTr("Volume change per scroll notch on Cranked Audio mixer knobs.")
+            description: qsTr("Volume change per scroll notch on Cranked Audio mixer knobs (pairs with cranked-audio for an in-island per-app mixer).")
             key: "behavior.mixerVolumeStep"
             defaultValue: 2
             from: 1
