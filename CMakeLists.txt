@@ -107,6 +107,7 @@ qt_add_executable(atoll
     src/system/privacymonitor.cpp  src/system/privacymonitor.h
     src/system/visualizer.cpp      src/system/visualizer.h
     src/system/crankedservice.cpp  src/system/crankedservice.h
+    src/system/drivemonitor.cpp    src/system/drivemonitor.h
 
     src/calendar/calendarservice.cpp src/calendar/calendarservice.h
 

@@ -57,6 +57,13 @@ SettingsPage {
         }
 
         BoolSetting {
+            label: qsTr("Show plugged-in drives")
+            description: qsTr("USB sticks, SD cards and external disks as they are plugged in. Plasma shows these in its own popup without a notification, so the island watches for them itself. Clicking one opens it in the file manager, mounting it first if needed.")
+            key: "notifications.showDrives"
+            defaultValue: true
+        }
+
+        BoolSetting {
             label: qsTr("Quick reply")
             description: qsTr("Type and send replies to KDE Connect SMS and messaging notifications directly from the island.")
             key: "notifications.quickReply"

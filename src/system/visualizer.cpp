@@ -128,8 +128,10 @@ bool Visualizer::startCava()
     if (!config.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         return false;
     }
+    // 30 updates a second, the same as the synthetic bars: the 70 ms height
+    // animation in Spectrum.qml smooths them, and 60 only doubled the redraws.
     config.write(u"[general]\n"
-                 "framerate = 60\n"
+                 "framerate = 30\n"
                  "bars = %1\n"
                  "autosens = 1\n"
                  "\n"

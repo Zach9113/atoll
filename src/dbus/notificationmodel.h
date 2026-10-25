@@ -95,6 +95,8 @@ Q_SIGNALS:
     void doNotDisturbChanged();
     /** Emitted for notifications the island should actually pop for. */
     void arrived(const QVariantMap &notification);
+    /** An entry Atoll made itself was clicked and points at an atoll-... URL only Atoll can open. */
+    void internalUrlOpened(const QString &url);
 
 private:
     int indexOfUid(quint64 uid) const;

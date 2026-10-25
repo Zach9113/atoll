@@ -31,6 +31,7 @@
 
 class DBusMonitor;
 class JobMonitor;
+class DriveMonitor;
 class NotificationMonitor;
 class QQmlEngine;
 class QJSEngine;
@@ -205,6 +206,7 @@ private:
     OsdMonitor *m_osd = nullptr;
     NotificationMonitor *m_notificationMonitor = nullptr;
     JobMonitor *m_jobMonitor = nullptr;
+    DriveMonitor *m_driveMonitor = nullptr;
     NotificationModel *m_notifications = nullptr;
     MprisManager *m_media = nullptr;
     Battery *m_battery = nullptr;

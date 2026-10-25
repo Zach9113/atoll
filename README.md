@@ -503,6 +503,7 @@ while you watch. Keys you are most likely to want:
 | `effects.gooey` | The metaball merge between the island and its satellite. |
 | `notifications.ignoredApps` | Apps the island should stay quiet about. |
 | `notifications.openOnClick` | Whether clicking a notification raises or starts the app that sent it. |
+| `notifications.showDrives` | Whether plugging in a USB stick, SD card or external disk shows on the island; clicking it opens the drive. |
 | `notifications.showTransfers` | Whether file transfers and copies (KDE Connect, Dolphin, other KIO jobs) show their progress on the island. |
 | `modules.privacy` | The camera, microphone and screen-share dots on the resting island. |
 | `modules.bluetooth` | Bluetooth power and device connections in the dashboard. |

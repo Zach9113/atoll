@@ -330,7 +330,11 @@ void NotificationModel::open(quint64 uid)
     // Entries Atoll made itself (a finished transfer) point at what they are
     // about; there is no sender to hand the click to.
     if (!item.openUrl.isEmpty()) {
-        QDesktopServices::openUrl(QUrl(item.openUrl));
+        if (item.openUrl.startsWith(u"atoll-"_s)) {
+            Q_EMIT internalUrlOpened(item.openUrl);
+        } else {
+            QDesktopServices::openUrl(QUrl(item.openUrl));
+        }
         dismiss(uid);
         return;
     }

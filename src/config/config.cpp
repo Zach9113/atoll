@@ -110,6 +110,7 @@ QVariantMap Config::defaults()
     "showActions": true,
     "openOnClick": true,
     "showTransfers": true,
+    "showDrives": true,
     "quickReply": true,
     "restoreFocus": true
   },
