@@ -137,6 +137,17 @@ void CrankedService::stepKnob(int index, int delta)
     if (index < 0) {
         return;
     }
+    // Optimistic local update so UI moves immediately
+    if (index < m_knobs.size()) {
+        QVariantMap map = m_knobs.at(index).toMap();
+        const int current = map.value(QStringLiteral("level")).toInt();
+        if (current >= 0) {
+            map.insert(QStringLiteral("level"), qBound(0, current + delta, 100));
+            m_knobs.replace(index, map);
+            Q_EMIT changed();
+        }
+    }
+
     QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("StepKnob"));
     msg << static_cast<quint32>(index) << static_cast<qint32>(delta);
     QDBusConnection::sessionBus().send(msg);

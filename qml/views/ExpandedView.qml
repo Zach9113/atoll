@@ -691,6 +691,7 @@ Item {
                         height: 130
                         contentWidth: Math.max(width, knobsRow.implicitWidth)
                         contentHeight: 130
+                        flickableDirection: Flickable.HorizontalFlick
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
 

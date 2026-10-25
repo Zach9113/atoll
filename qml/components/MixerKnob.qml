@@ -6,6 +6,7 @@ import Atoll
 /**
  * A volume knob column for the in-island Cranked Audio mixer card.
  * Shows the knob's custom color, 270° dial ring, level %, source, and action button.
+ * Supports mouse wheel scrolling anywhere over the knob, plus click/drag on the dial.
  */
 Item {
     id: knobItem
@@ -24,6 +25,18 @@ Item {
 
     implicitWidth: 64
     implicitHeight: 126
+
+    // Wheel scrolling anywhere over this knob column changes volume
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        onWheel: wheel => {
+            const step = Cfg.behavior.volumeStep ?? 3
+            const delta = (wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? step : -step) * (wheel.modifiers & Qt.ShiftModifier ? 2 : 1)
+            App.cranked.stepKnob(knobItem.knobIndex, delta)
+            wheel.accepted = true
+        }
+    }
 
     Column {
         anchors.fill: parent
@@ -109,20 +122,20 @@ Item {
                 font.weight: Font.Bold
             }
 
-            // Scroll to change volume
-            WheelHandler {
-                onWheel: event => {
-                    const delta = event.angleDelta.y > 0 ? 3 : -3
-                    App.cranked.stepKnob(knobItem.knobIndex, delta)
-                }
-            }
-
-            // Drag to set volume
+            // Drag or scroll directly on dial
             MouseArea {
                 id: dialArea
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton
+
+                onWheel: wheel => {
+                    const step = Cfg.behavior.volumeStep ?? 3
+                    const delta = (wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? step : -step) * (wheel.modifiers & Qt.ShiftModifier ? 2 : 1)
+                    App.cranked.stepKnob(knobItem.knobIndex, delta)
+                    wheel.accepted = true
+                }
 
                 function updateFromPoint(mx, my) {
                     const cx = width / 2
