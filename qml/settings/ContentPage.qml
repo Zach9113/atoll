@@ -39,6 +39,9 @@ SettingsPage {
             label: qsTr("Clock")
             key: "idle.showClock"
             defaultValue: true
+            // Greyed out while the whole feature is off under Features.
+            enabled: Cfg.get("modules.clock", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
@@ -46,14 +49,18 @@ SettingsPage {
             description: qsTr("The date next to the time, in the format set further down this page.")
             key: "idle.showDate"
             defaultValue: false
+            enabled: Cfg.get("modules.clock", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
             label: qsTr("Cover of what is playing")
-            description: qsTr("While music plays. \"Show a cover on the resting island\" under Media also has to be on.")
+            description: qsTr("A small cover next to the clock while music plays.")
             key: "idle.showMediaBadge"
             alsoKeys: ["media.idleBadge"]
             defaultValue: true
+            enabled: Cfg.get("modules.media", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
@@ -61,12 +68,16 @@ SettingsPage {
             description: qsTr("The pulsing accent dot while notifications are waiting.")
             key: "idle.showNotificationDot"
             defaultValue: true
+            enabled: Cfg.get("modules.notifications", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
             label: qsTr("Low battery dot")
             key: "idle.showBatteryDot"
             defaultValue: true
+            enabled: Cfg.get("modules.battery", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
@@ -74,14 +85,18 @@ SettingsPage {
             description: qsTr("One dot, blended orange, red and violet while an application is using the microphone, the camera or your screen.")
             key: "idle.showPrivacyIndicators"
             defaultValue: true
+            enabled: Cfg.get("modules.privacy", true)
+            opacity: enabled ? 1 : 0.45
         }
 
         BoolSetting {
             label: qsTr("Next calendar event")
-            description: qsTr("\"Show in resting island\" under Calendar also has to be on.")
+            description: qsTr("The next event from your calendars, when one is coming up soon.")
             key: "idle.showCalendarHint"
             alsoKeys: ["calendar.showInIdle"]
             defaultValue: true
+            enabled: Cfg.get("modules.calendar", true)
+            opacity: enabled ? 1 : 0.45
             last: true
         }
     }

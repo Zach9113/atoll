@@ -66,6 +66,8 @@ SettingsPage {
             description: qsTr("Automatically return keyboard focus to your previous active window after sending or dismissing a quick reply.")
             key: "notifications.restoreFocus"
             defaultValue: true
+            enabled: Cfg.get("notifications.quickReply", true)
+            opacity: enabled ? 1 : 0.45
             last: true
         }
     }

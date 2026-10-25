@@ -78,7 +78,7 @@ and it does not replace Plasma's OSD:
 Atoll includes seamless out-of-the-box integration with [Cranked Audio](https://github.com/Zach9113/cranked-audio) to give you physical or on-screen per-app volume knobs.
 
 When Cranked Audio is running, Atoll automatically adds a **Mixer** toggle to its expanded dashboard:
-- **3 Interchangeable Styles:** Choose between circular **Knobs**, studio mixing desk **Faders**, or stacked horizontal **Sliders** that automatically expand to fit all active channels. Cycle between them with a 1-click button in the card header or in Settings > **Behaviour** > **Mixer style**.
+- **3 Interchangeable Styles:** Choose between circular **Knobs**, studio mixing desk **Faders**, or stacked horizontal **Sliders** that automatically expand to fit all active channels. Cycle between them with a 1-click button in the card header or in **Settings → Mixer → Style**.
 - **Wheel & Drag interaction:** Scroll anywhere over dials, faders, or slider tracks (or drag the thumbs) to adjust volume with instant optimistic visual feedback.
 - **Mute & Actions:** Click the source action button to mute/unmute or trigger your custom action.
 - **Hardware sync:** If you use a physical USB mixer, knob turns and LED colors stay in perfect sync with the island.
@@ -97,7 +97,7 @@ Or install **both** Atoll and Cranked Audio together in one command:
 curl -sSL https://raw.githubusercontent.com/Zach9113/cranked-audio/main/install-both.sh | bash
 ```
 
-Once installed, Atoll auto-detects it immediately. You can customize scroll sensitivity under Atoll Settings > **Behaviour** > **Mixer volume step**.
+Once installed, Atoll auto-detects it immediately. You can customize scroll sensitivity under **Settings → Mixer → Scroll step**.
 
 ### Where it appears
 
