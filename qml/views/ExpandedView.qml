@@ -668,13 +668,46 @@ Item {
                                 font.weight: Font.DemiBold
                             }
 
-                            Text {
+                            // Interactive Profile Pill (click to cycle profiles)
+                            Rectangle {
                                 anchors.verticalCenter: parent.verticalCenter
                                 visible: App.cranked.profile.length > 0
-                                text: "(" + App.cranked.profile + ")"
-                                color: Theme.muted
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.size(10)
+                                height: 20
+                                radius: 10
+                                color: profileArea.containsMouse ? Theme.tint(0.18) : Theme.tint(0.09)
+                                border.width: 1
+                                border.color: profileArea.containsMouse ? Theme.tint(0.32) : Theme.tint(0.18)
+                                implicitWidth: profileRow.implicitWidth + 14
+
+                                Row {
+                                    id: profileRow
+                                    anchors.centerIn: parent
+                                    spacing: 4
+
+                                    IconImage {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: 11
+                                        height: 11
+                                        names: ["view-media-playlist", "media-playlist-repeat", "preferences-system-session"]
+                                    }
+
+                                    Text {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: App.cranked.profile
+                                        color: Theme.foreground
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.size(9.5)
+                                        font.weight: Font.DemiBold
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: profileArea
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: App.cranked.nextProfile()
+                                }
                             }
 
                             Text {
@@ -690,6 +723,15 @@ Item {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
+
+                            // Profile cycle button
+                            RoundButton {
+                                visible: App.cranked.profiles.length > 1
+                                width: 22
+                                height: 22
+                                icon: ["view-media-playlist", "media-playlist-repeat", "go-next"]
+                                onClicked: App.cranked.nextProfile()
+                            }
 
                             // Button inside knob toggle (knobs style only)
                             RoundButton {

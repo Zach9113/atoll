@@ -25,6 +25,7 @@ class CrankedService : public QObject
     Q_PROPERTY(bool available READ available NOTIFY changed)
     Q_PROPERTY(bool mixerConnected READ mixerConnected NOTIFY changed)
     Q_PROPERTY(QString profile READ profile NOTIFY changed)
+    Q_PROPERTY(QStringList profiles READ profiles NOTIFY changed)
     Q_PROPERTY(QVariantList knobs READ knobs NOTIFY changed)
     Q_PROPERTY(int count READ count NOTIFY changed)
 
@@ -43,6 +44,10 @@ public:
     {
         return m_profile;
     }
+    QStringList profiles() const
+    {
+        return m_profiles;
+    }
     QVariantList knobs() const
     {
         return m_knobs;
@@ -55,6 +60,8 @@ public:
     Q_INVOKABLE void setKnob(int index, int percent);
     Q_INVOKABLE void stepKnob(int index, int delta);
     Q_INVOKABLE void press(int index);
+    Q_INVOKABLE void nextProfile();
+    Q_INVOKABLE void setProfile(const QString &name);
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void openWindow();
 
@@ -71,6 +78,7 @@ private:
     bool m_available = false;
     bool m_mixerConnected = false;
     QString m_profile;
+    QStringList m_profiles;
     QVariantList m_knobs;
     QDBusServiceWatcher *m_watcher = nullptr;
 };

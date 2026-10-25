@@ -76,6 +76,13 @@ void CrankedService::parseState(const QString &stateJson)
     m_mixerConnected = root.value(QStringLiteral("mixer")).toBool(false);
     m_profile = root.value(QStringLiteral("profile")).toString();
 
+    const QJsonArray profArray = root.value(QStringLiteral("profiles")).toArray();
+    m_profiles.clear();
+    m_profiles.reserve(profArray.size());
+    for (const QJsonValue &v : profArray) {
+        m_profiles.append(v.toString());
+    }
+
     const QJsonArray knobArray = root.value(QStringLiteral("knobs")).toArray();
     QVariantList list;
     list.reserve(knobArray.size());
@@ -160,6 +167,31 @@ void CrankedService::press(int index)
     }
     QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("Press"));
     msg << static_cast<quint32>(index);
+    QDBusConnection::sessionBus().send(msg);
+}
+
+void CrankedService::nextProfile()
+{
+    if (!m_profiles.isEmpty()) {
+        int idx = m_profiles.indexOf(m_profile);
+        int nextIdx = (idx + 1) % m_profiles.size();
+        setProfile(m_profiles.at(nextIdx));
+        return;
+    }
+    QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("NextProfile"));
+    QDBusConnection::sessionBus().send(msg);
+}
+
+void CrankedService::setProfile(const QString &name)
+{
+    if (name.isEmpty()) {
+        return;
+    }
+    m_profile = name;
+    Q_EMIT changed();
+
+    QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("SetProfile"));
+    msg << name;
     QDBusConnection::sessionBus().send(msg);
 }
 
