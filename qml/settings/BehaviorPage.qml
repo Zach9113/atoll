@@ -5,7 +5,7 @@ import Atoll
 
 SettingsPage {
     title: qsTr("Behaviour")
-    description: qsTr("What the pointer does to the island, and how the mixer behaves.")
+    description: qsTr("What the pointer does to the island.")
 
     SettingsGroup {
         title: qsTr("Pointer actions")
@@ -93,77 +93,6 @@ SettingsPage {
         BoolSetting {
             label: qsTr("Collapse when the pointer leaves")
             key: "behavior.collapseOnLeave"
-            defaultValue: true
-            last: true
-        }
-    }
-
-    SettingsGroup {
-        title: qsTr("Mixer (Cranked Audio)")
-
-        ChoiceSetting {
-            label: qsTr("Layout style")
-            description: qsTr("Visual layout for the Cranked Audio mixer card inside the island.")
-            key: "behavior.mixerStyle"
-            defaultValue: "knobs"
-            options: [
-                { value: "knobs", label: qsTr("Knobs (circular dials)") },
-                { value: "faders", label: qsTr("Faders (mixing desk)") },
-                { value: "sliders", label: qsTr("Sliders (horizontal bars)") }
-            ]
-        }
-
-        BoolSetting {
-            label: qsTr("Keep mixer open in island")
-            description: qsTr("Automatically opens the mixer card whenever the island expands, without needing to click the Mixer pill.")
-            key: "behavior.mixerExpanded"
-            defaultValue: false
-        }
-
-        BoolSetting {
-            label: qsTr("Button inside knob")
-            description: qsTr("In Knobs style, place the channel action button directly inside the circular dial ring.")
-            key: "behavior.mixerButtonInsideKnob"
-            defaultValue: false
-            enabled: Cfg.get("behavior.mixerStyle", "knobs") === "knobs"
-            opacity: enabled ? 1 : 0.45
-        }
-
-        NumberSetting {
-            label: qsTr("Mixer scroll step")
-            description: qsTr("Volume change per scroll notch on mixer controls.")
-            key: "behavior.mixerVolumeStep"
-            defaultValue: 2
-            from: 1
-            to: 25
-            suffix: "%"
-        }
-
-        BoolSetting {
-            label: qsTr("Show channel names")
-            description: qsTr("Display channel labels (e.g. Media, Music, Game).")
-            key: "behavior.mixerShowNames"
-            defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Show percentages")
-            description: qsTr("Display numeric volume percentage text.")
-            key: "behavior.mixerShowPercent"
-            defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Show what is playing")
-            description: qsTr("Display the active application or source below each channel.")
-            key: "behavior.mixerShowSource"
-            defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Show action buttons")
-            description: qsTr("Display action buttons (Play/Pause, Mute, Next).")
-            key: "behavior.mixerShowButtons"
             defaultValue: true
             last: true
         }

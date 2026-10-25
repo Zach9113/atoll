@@ -8,7 +8,7 @@ SettingsPage {
     description: qsTr("Atoll mirrors the notifications your daemon already shows. Silencing it here does not silence your daemon.")
 
     SettingsGroup {
-        title: qsTr("On the island")
+        title: qsTr("Popups")
 
         NumberSetting {
             label: qsTr("On screen for")
@@ -40,26 +40,17 @@ SettingsPage {
             description: qsTr("Buttons a notification offers. As a bus observer, Atoll can only re-broadcast them; some senders ignore that.")
             key: "notifications.showActions"
             defaultValue: true
+            last: true
         }
+    }
+
+    SettingsGroup {
+        title: qsTr("Clicking and replying")
 
         BoolSetting {
             label: qsTr("Open the app when clicked")
             description: qsTr("Clicking a notification raises the application that sent it, or starts one if none is running. The default action still goes to the app first, so on Plasma's daemon chat clients land you in the conversation itself.")
             key: "notifications.openOnClick"
-            defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Show file transfers")
-            description: qsTr("Progress of KDE Connect transfers, Dolphin copies and other jobs Plasma tracks. They never send a notification, so this is the only way to see them on the island.")
-            key: "notifications.showTransfers"
-            defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Show plugged-in drives")
-            description: qsTr("USB sticks, SD cards and external disks as they are plugged in. Plasma shows these in its own popup without a notification, so the island watches for them itself. Clicking one opens it in the file manager, mounting it first if needed.")
-            key: "notifications.showDrives"
             defaultValue: true
         }
 
@@ -75,19 +66,39 @@ SettingsPage {
             description: qsTr("Automatically return keyboard focus to your previous active window after sending or dismissing a quick reply.")
             key: "notifications.restoreFocus"
             defaultValue: true
+            last: true
         }
+    }
+
+    SettingsGroup {
+        title: qsTr("Also show")
+        // Things Plasma tracks without sending a notification, so the island watches for them itself.
+
+        BoolSetting {
+            label: qsTr("File transfers")
+            description: qsTr("Progress of KDE Connect transfers, Dolphin copies and other jobs Plasma tracks. They never send a notification, so this is the only way to see them on the island.")
+            key: "notifications.showTransfers"
+            defaultValue: true
+        }
+
+        BoolSetting {
+            label: qsTr("Plugged-in drives")
+            description: qsTr("USB sticks, SD cards and external disks as they are plugged in. Plasma shows these in its own popup without a notification, so the island watches for them itself. Clicking one opens it in the file manager, mounting it first if needed.")
+            key: "notifications.showDrives"
+            defaultValue: true
+            last: true
+        }
+    }
+
+    SettingsGroup {
+        title: qsTr("Quiet")
 
         BoolSetting {
             label: qsTr("Do not disturb")
             description: qsTr("The island collects notifications silently. The same switch sits in the dashboard.")
             key: "notifications.dnd"
             defaultValue: false
-            last: true
         }
-    }
-
-    SettingsGroup {
-        title: qsTr("Filtering")
 
         ListSetting {
             label: qsTr("Ignored apps")
@@ -99,7 +110,7 @@ SettingsPage {
     }
 
     SettingsGroup {
-        title: qsTr("Plumbing")
+        title: qsTr("Advanced")
 
         BoolSetting {
             label: qsTr("Track notification ids")

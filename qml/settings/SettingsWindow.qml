@@ -21,6 +21,7 @@ Window {
         { title: qsTr("Appearance"), icon: ["preferences-desktop-theme", "preferences-desktop-color"] },
         { title: qsTr("Content"), icon: ["view-list-details", "preferences-desktop"] },
         { title: qsTr("Media"), icon: ["multimedia-player", "audio-x-generic"] },
+        { title: qsTr("Mixer"), icon: ["audio-volume-high", "preferences-desktop-sound", "audio-card"] },
         { title: qsTr("Notifications"), icon: ["preferences-desktop-notification", "notifications"] },
         { title: qsTr("Behaviour"), icon: ["input-mouse", "preferences-desktop-mouse"] },
         { title: qsTr("Sharing"), icon: ["emblem-shared", "document-send"] },
@@ -30,7 +31,7 @@ Window {
     ]
 
     /** Page names the island can ask to land on. */
-    readonly property var pageKeys: ["placement", "appearance", "content", "media",
+    readonly property var pageKeys: ["placement", "appearance", "content", "media", "mixer",
                                      "notifications", "behaviour", "sharing", "calendar", "ai", "about"]
 
     Component.onCompleted: {
@@ -299,34 +300,39 @@ Window {
             visible: root.current === 3
         }
 
-        NotificationsPage {
+        MixerPage {
             anchors.fill: parent
             visible: root.current === 4
         }
 
-        BehaviorPage {
+        NotificationsPage {
             anchors.fill: parent
             visible: root.current === 5
         }
 
-        SharingPage {
+        BehaviorPage {
             anchors.fill: parent
             visible: root.current === 6
         }
 
-        CalendarPage {
+        SharingPage {
             anchors.fill: parent
             visible: root.current === 7
         }
 
-        AiPage {
+        CalendarPage {
             anchors.fill: parent
             visible: root.current === 8
         }
 
-        AboutPage {
+        AiPage {
             anchors.fill: parent
             visible: root.current === 9
+        }
+
+        AboutPage {
+            anchors.fill: parent
+            visible: root.current === 10
         }
     }
 }

@@ -270,6 +270,7 @@ qt_add_qml_module(atoll
         qml/settings/MediaPage.qml
         qml/settings/NotificationsPage.qml
         qml/settings/BehaviorPage.qml
+        qml/settings/MixerPage.qml
         qml/settings/SharingPage.qml
         qml/settings/AiPage.qml
         qml/settings/CalendarPage.qml
