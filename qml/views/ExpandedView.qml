@@ -674,7 +674,7 @@ Item {
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: "· " + (mixerCard.currentStyle === "faders" ? qsTr("Faders") : (mixerCard.currentStyle === "sliders" ? qsTr("Sliders") : qsTr("Knobs")))
+                                text: "· " + (mixerCard.currentStyle === "faders" ? qsTr("Faders") : qsTr("Knobs"))
                                 color: Theme.muted
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.size(9)
@@ -690,15 +690,12 @@ Item {
                             RoundButton {
                                 width: 22
                                 height: 22
-                                icon: {
-                                    const s = mixerCard.currentStyle
-                                    if (s === "faders") return ["view-media-equalizer", "audio-speakers", "format-align-vertical-center"]
-                                    if (s === "sliders") return ["view-list-details", "view-media-playlist", "format-align-horizontal-center"]
-                                    return ["media-seek-forward", "media-optical-audio", "applications-graphics"]
-                                }
+                                icon: mixerCard.currentStyle === "faders"
+                                    ? ["view-media-equalizer", "audio-speakers", "format-align-vertical-center"]
+                                    : ["media-seek-forward", "media-optical-audio", "applications-graphics"]
                                 onClicked: {
                                     const cur = mixerCard.currentStyle
-                                    const next = cur === "knobs" ? "faders" : (cur === "faders" ? "sliders" : "knobs")
+                                    const next = cur === "knobs" ? "faders" : "knobs"
                                     Cfg.set("behavior.mixerStyle", next)
                                 }
                             }
@@ -775,33 +772,6 @@ Item {
                                 model: mixerCard.currentStyle === "faders" ? App.cranked.knobs : []
                                 delegate: MixerFader {
                                     width: 64
-                                    knob: modelData
-                                    knobIndex: index
-                                }
-                            }
-                        }
-                    }
-
-                    // Style 3: Sliders (horizontal volume rows)
-                    Flickable {
-                        visible: mixerCard.currentStyle === "sliders"
-                        width: parent.width
-                        height: visible ? Math.min(220, slidersCol.implicitHeight) : 0
-                        contentWidth: width
-                        contentHeight: visible ? slidersCol.implicitHeight : 0
-                        flickableDirection: Flickable.VerticalFlick
-                        clip: true
-                        boundsBehavior: Flickable.StopAtBounds
-
-                        Column {
-                            id: slidersCol
-                            width: parent.width
-                            spacing: 6
-
-                            Repeater {
-                                model: mixerCard.currentStyle === "sliders" ? App.cranked.knobs : []
-                                delegate: MixerSlider {
-                                    width: slidersCol.width
                                     knob: modelData
                                     knobIndex: index
                                 }

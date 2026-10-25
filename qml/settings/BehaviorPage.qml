@@ -78,8 +78,7 @@ SettingsPage {
             defaultValue: "knobs"
             options: [
                 { value: "knobs", label: qsTr("Knobs (circular dials)") },
-                { value: "faders", label: qsTr("Faders (mixing desk)") },
-                { value: "sliders", label: qsTr("Sliders (horizontal bars)") }
+                { value: "faders", label: qsTr("Faders (mixing desk)") }
             ]
             last: true
         }
