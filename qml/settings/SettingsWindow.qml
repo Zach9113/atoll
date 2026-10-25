@@ -19,7 +19,7 @@ Window {
     readonly property var pages: [
         { title: qsTr("Placement"), icon: ["preferences-desktop-display", "video-display"] },
         { title: qsTr("Appearance"), icon: ["preferences-desktop-theme", "preferences-desktop-color"] },
-        { title: qsTr("Content"), icon: ["view-list-details", "preferences-desktop"] },
+        { title: qsTr("What shows"), icon: ["view-list-details", "preferences-desktop"] },
         { title: qsTr("Media"), icon: ["multimedia-player", "audio-x-generic"] },
         { title: qsTr("Mixer"), icon: ["audio-volume-high", "preferences-desktop-sound", "audio-card"] },
         { title: qsTr("Notifications"), icon: ["preferences-desktop-notification", "notifications"] },

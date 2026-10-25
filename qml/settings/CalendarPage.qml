@@ -222,15 +222,9 @@ SettingsPage {
             to: 3600
             step: 5
             suffix: " s"
-        }
-
-        BoolSetting {
-            label: qsTr("Show in resting island")
-            description: qsTr("Displays the next event in the pill when a meeting is within 60 minutes.")
-            key: "calendar.showInIdle"
-            defaultValue: true
             last: true
         }
+
     }
 
     SettingsGroup {

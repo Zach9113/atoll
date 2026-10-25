@@ -40,15 +40,9 @@ SettingsPage {
             description: qsTr("Shown next to the artist when there is no lyric line to show instead.")
             key: "media.showAlbum"
             defaultValue: true
-        }
-
-        BoolSetting {
-            label: qsTr("Cover in the resting island")
-            description: qsTr("A thumbnail next to the clock while something plays.")
-            key: "media.idleBadge"
-            defaultValue: true
             last: true
         }
+
     }
 
     SettingsGroup {
@@ -72,6 +66,13 @@ SettingsPage {
 
     SettingsGroup {
         title: qsTr("Spectrum")
+
+        BoolSetting {
+            label: qsTr("Show the spectrum")
+            description: qsTr("The bars next to the cover. With cava installed they follow the real sound; without it they are decorative.")
+            key: "modules.visualizer"
+            defaultValue: true
+        }
 
         NumberSetting {
             label: qsTr("Bars")

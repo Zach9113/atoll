@@ -9,9 +9,20 @@ SettingRow {
 
     property string key: ""
     property bool defaultValue: false
+    /**
+     * Older keys for the same switch. The island needs all of them on, so the
+     * switch shows on only when they all are, and flipping it sets every one.
+     */
+    property var alsoKeys: []
 
     ToggleSwitch {
         checked: Cfg.get(setting.key, setting.defaultValue)
-        onToggled: value => Cfg.set(setting.key, value)
+                 && setting.alsoKeys.every(other => Cfg.get(other, setting.defaultValue))
+        onToggled: value => {
+            Cfg.set(setting.key, value)
+            for (const other of setting.alsoKeys) {
+                Cfg.set(other, value)
+            }
+        }
     }
 }
