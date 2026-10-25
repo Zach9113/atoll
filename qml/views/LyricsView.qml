@@ -171,7 +171,7 @@ Item {
                 font.pixelSize: Theme.size(11)
 
                 SequentialAnimation on opacity {
-                    running: view.busy
+                    running: view.busy && view.visible
                     loops: Animation.Infinite
                     NumberAnimation { to: 0.4; duration: 700; easing.type: Easing.InOutSine }
                     NumberAnimation { to: 1.0; duration: 700; easing.type: Easing.InOutSine }

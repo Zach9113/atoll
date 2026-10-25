@@ -32,7 +32,7 @@ Item {
         onTextChanged: {
             scroll.stop()
             x = 0
-            if (marquee.scrolling) {
+            if (marquee.scrolling && marquee.visible) {
                 scroll.restart()
             }
         }
@@ -41,7 +41,16 @@ Item {
     onOverflowChanged: {
         scroll.stop()
         label.x = 0
-        if (scrolling) {
+        if (scrolling && visible) {
+            scroll.restart()
+        }
+    }
+
+    onVisibleChanged: {
+        if (!visible) {
+            scroll.stop()
+            label.x = 0
+        } else if (scrolling) {
             scroll.restart()
         }
     }

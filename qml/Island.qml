@@ -411,6 +411,12 @@ Item {
             visible: opacity > 0
             scale: stack.frontIsA ? 1 : 0.94
 
+            onOpacityChanged: {
+                if (opacity === 0 && !stack.frontIsA) {
+                    sourceComponent = null
+                }
+            }
+
             Behavior on opacity {
                 NumberAnimation {
                     duration: Theme.fast
@@ -432,6 +438,12 @@ Item {
             opacity: stack.frontIsA ? 0 : 1
             visible: opacity > 0
             scale: stack.frontIsA ? 0.94 : 1
+
+            onOpacityChanged: {
+                if (opacity === 0 && stack.frontIsA) {
+                    sourceComponent = null
+                }
+            }
 
             Behavior on opacity {
                 NumberAnimation {

@@ -37,7 +37,7 @@ Item {
         source: art.source
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
-        cache: false
+        cache: true
         smooth: true
         visible: false
     }
@@ -53,7 +53,7 @@ Item {
     Item {
         id: mask
         anchors.fill: parent
-        layer.enabled: true
+        layer.enabled: cover.status === Image.Ready && art.visible
         visible: false
 
         Rectangle {
