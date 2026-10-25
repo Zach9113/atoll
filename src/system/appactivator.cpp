@@ -139,7 +139,13 @@ if (found) {
 
     m_pendingRaises.insert(request, {desktopEntry, appName});
     // KWin answers in a few milliseconds; past this, launch the app as before.
-    QTimer::singleShot(RaiseWaitMs, this, [this, request, script] {
+    // The script is unloaded only here: KWin reads the file in the background
+    // after run(), so unloading straight away removed it before it ever ran.
+    QTimer::singleShot(RaiseWaitMs, this, [this, request, script, path = script->fileName()] {
+        auto unload = QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting"_s, u"org.kde.kwin.Scripting"_s,
+                                                     u"unloadScript"_s);
+        unload << path;
+        QDBusConnection::sessionBus().asyncCall(unload);
         script->deleteLater();
         if (m_pendingRaises.contains(request)) {
             const auto [desktopEntry, appName] = m_pendingRaises.take(request);
@@ -151,19 +157,14 @@ if (found) {
     auto load = QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting"_s, u"org.kde.kwin.Scripting"_s, u"loadScript"_s);
     load << path;
     auto *watcher = new QDBusPendingCallWatcher(bus.asyncCall(load, RaiseWaitMs), this);
-    connect(watcher, &QDBusPendingCallWatcher::finished, this, [path](QDBusPendingCallWatcher *call) {
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [](QDBusPendingCallWatcher *call) {
         call->deleteLater();
         const QDBusPendingReply<int> reply = *call;
         if (!reply.isValid() || reply.value() < 0) {
             return; // no KWin scripting: the timer launches the app
         }
-        QDBusConnection bus = QDBusConnection::sessionBus();
-        bus.asyncCall(QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting/Script%1"_s.arg(reply.value()),
-                                                     u"org.kde.kwin.Script"_s, u"run"_s));
-        auto unload = QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting"_s, u"org.kde.kwin.Scripting"_s,
-                                                     u"unloadScript"_s);
-        unload << path;
-        bus.asyncCall(unload);
+        QDBusConnection::sessionBus().asyncCall(QDBusMessage::createMethodCall(
+            u"org.kde.KWin"_s, u"/Scripting/Script%1"_s.arg(reply.value()), u"org.kde.kwin.Script"_s, u"run"_s));
     });
     return true;
 }

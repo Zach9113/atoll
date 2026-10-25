@@ -339,18 +339,24 @@ void NotificationModel::open(quint64 uid)
         return;
     }
 
-    // The polite path: Plasma's own daemon answers org.kde.Notifications on
-    // the same object, and InvokeAction makes *it* emit ActionInvoked from its
-    // well-known name - which senders accept, unlike a re-broadcast of ours.
+    // The polite path: Plasma's own daemon has an InvokeAction on the same
+    // object that makes *it* emit ActionInvoked from its well-known name -
+    // which senders accept, unlike a re-broadcast of ours. Plasma 6.8 moved it
+    // from org.kde.Notifications to org.kde.NotificationManager.
     bool handedToSender = false;
     if (item.daemonId != 0 && item.actions.contains(u"default"_s)) {
-        auto message = QDBusMessage::createMethodCall(u"org.freedesktop.Notifications"_s,
-                                                      u"/org/freedesktop/Notifications"_s,
-                                                      u"org.kde.Notifications"_s,
-                                                      u"InvokeAction"_s);
-        message << item.daemonId << u"default"_s;
-        const QDBusMessage reply = QDBusConnection::sessionBus().call(message, QDBus::Block, 300);
-        handedToSender = reply.type() == QDBusMessage::ReplyMessage;
+        for (const QString &interface : {u"org.kde.NotificationManager"_s, u"org.kde.Notifications"_s}) {
+            auto message = QDBusMessage::createMethodCall(u"org.freedesktop.Notifications"_s,
+                                                          u"/org/freedesktop/Notifications"_s,
+                                                          interface,
+                                                          u"InvokeAction"_s);
+            message << item.daemonId << u"default"_s;
+            const QDBusMessage reply = QDBusConnection::sessionBus().call(message, QDBus::Block, 300);
+            if (reply.type() == QDBusMessage::ReplyMessage) {
+                handedToSender = true;
+                break;
+            }
+        }
     }
     // Everywhere else, shout and hope: some senders take ActionInvoked from
     // anyone who says it loudly enough.
