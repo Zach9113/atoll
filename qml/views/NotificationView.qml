@@ -25,9 +25,14 @@ Item {
     signal replyActiveChanged(bool active)
 
     implicitHeight: replying ? 116 : 74
+    // Sized from what the text needs, never from contentCol: that column is anchored to this view, so its
+    // implicitWidth follows our own width and the island would keep creeping wider while it is shown.
+    readonly property real textWidth: Math.min(320, Math.max(180, appLabel.implicitWidth, summary.implicitWidth,
+                                                             body.implicitWidth))
     implicitWidth: Math.min(Cfg.maxWidth,
                             Math.max(replying ? 420 : 320,
-                                     contentCol.implicitWidth + Math.max(34, Theme.edgeInset * 2)))
+                                     40 + 12 + textWidth + (actionArea.visible ? actionArea.width + 12 : 0)
+                                     + Math.max(15, Theme.edgeInset) * 2))
 
     onNotificationChanged: {
         replying = false
