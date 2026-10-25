@@ -237,6 +237,7 @@ qt_add_qml_module(atoll
         qml/components/PillButton.qml
         qml/components/MixerKnob.qml
         qml/components/MixerFader.qml
+        qml/components/MixerSlider.qml
         qml/components/Ripple.qml
         qml/components/BloubBot.qml
         qml/components/EdgeGlow.qml
