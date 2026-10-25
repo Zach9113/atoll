@@ -94,6 +94,7 @@ qt_add_executable(atoll
     src/dbus/dbusvariant.cpp       src/dbus/dbusvariant.h
     src/dbus/osdmonitor.cpp        src/dbus/osdmonitor.h
     src/dbus/notificationmonitor.cpp src/dbus/notificationmonitor.h
+    src/dbus/jobmonitor.cpp        src/dbus/jobmonitor.h
     src/dbus/notificationmodel.cpp src/dbus/notificationmodel.h
     src/dbus/mprisplayer.cpp       src/dbus/mprisplayer.h
     src/dbus/mprismanager.cpp      src/dbus/mprismanager.h

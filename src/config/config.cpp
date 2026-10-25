@@ -108,7 +108,8 @@ QVariantMap Config::defaults()
     "maxBodyLines": 3,
     "dnd": false,
     "showActions": true,
-    "openOnClick": true
+    "openOnClick": true,
+    "showTransfers": true
   },
   "media": {
     "showOnPlay": true,

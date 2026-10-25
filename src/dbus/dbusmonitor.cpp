@@ -143,12 +143,13 @@ void DBusMonitor::Worker::run()
                 break;
             }
 
-            // Replies are only interesting when they carry a bare uint32: that
-            // is a Notify() answer handing out a notification id. Skipping the
-            // rest keeps a bus-wide method_return match rule cheap.
+            // Replies are only interesting when they carry a bare uint32 (a
+            // Notify() answer handing out a notification id) or a bare object
+            // path (a job tracker handing out a JobView). Skipping the rest
+            // keeps a bus-wide method_return match rule cheap.
             if (info.kind == DBusMessageInfo::MethodReturn) {
                 const char *signature = dbus_message_get_signature(message);
-                if (!signature || qstrcmp(signature, "u") != 0) {
+                if (!signature || (qstrcmp(signature, "u") != 0 && qstrcmp(signature, "o") != 0)) {
                     dbus_message_unref(message);
                     continue;
                 }

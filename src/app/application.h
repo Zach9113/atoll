@@ -29,6 +29,7 @@
 #include "system/visualizer.h"
 
 class DBusMonitor;
+class JobMonitor;
 class NotificationMonitor;
 class QQmlEngine;
 class QJSEngine;
@@ -196,6 +197,7 @@ private:
     DBusMonitor *m_monitor = nullptr;
     OsdMonitor *m_osd = nullptr;
     NotificationMonitor *m_notificationMonitor = nullptr;
+    JobMonitor *m_jobMonitor = nullptr;
     NotificationModel *m_notifications = nullptr;
     MprisManager *m_media = nullptr;
     Battery *m_battery = nullptr;

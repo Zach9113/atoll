@@ -50,6 +50,13 @@ SettingsPage {
         }
 
         BoolSetting {
+            label: qsTr("Show file transfers")
+            description: qsTr("Progress of KDE Connect transfers, Dolphin copies and other jobs Plasma tracks. They never send a notification, so this is the only way to see them on the island.")
+            key: "notifications.showTransfers"
+            defaultValue: true
+        }
+
+        BoolSetting {
             label: qsTr("Do not disturb")
             description: qsTr("The island collects notifications silently. The same switch sits in the dashboard.")
             key: "notifications.dnd"

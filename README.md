@@ -475,6 +475,7 @@ while you watch. Keys you are most likely to want:
 | `effects.gooey` | The metaball merge between the island and its satellite. |
 | `notifications.ignoredApps` | Apps the island should stay quiet about. |
 | `notifications.openOnClick` | Whether clicking a notification raises or starts the app that sent it. |
+| `notifications.showTransfers` | Whether file transfers and copies (KDE Connect, Dolphin, other KIO jobs) show their progress on the island. |
 | `modules.privacy` | The camera, microphone and screen-share dots on the resting island. |
 | `modules.bluetooth` | Bluetooth power and device connections in the dashboard. |
 | `idle.*` | What the resting pill shows: clock, day and date, cover, dots, next event, privacy indicators. |

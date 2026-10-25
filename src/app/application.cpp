@@ -8,6 +8,7 @@
 #include "calendar/calendarservice.h"
 #include "config/config.h"
 #include "dbus/dbusmonitor.h"
+#include "dbus/jobmonitor.h"
 #include "dbus/mprismanager.h"
 #include "dbus/mprisplayer.h"
 #include "dbus/notificationmodel.h"
@@ -71,6 +72,7 @@ Application::Application(QObject *parent)
     m_shell = new ShellWindow(m_config, this);
     m_osd = new OsdMonitor(m_config, this);
     m_notificationMonitor = new NotificationMonitor(m_config, this);
+    m_jobMonitor = new JobMonitor(m_config, this);
     m_activator = new AppActivator(this);
     m_notifications = new NotificationModel(m_config, m_activator, this);
     m_media = new MprisManager(m_config, this);
@@ -89,6 +91,9 @@ Application::Application(QObject *parent)
     connect(m_notificationMonitor, &NotificationMonitor::posted, m_notifications, &NotificationModel::onPosted);
     connect(m_notificationMonitor, &NotificationMonitor::idAssigned, m_notifications, &NotificationModel::onIdAssigned);
     connect(m_notificationMonitor, &NotificationMonitor::closed, m_notifications, &NotificationModel::onClosed);
+
+    connect(m_jobMonitor, &JobMonitor::progress, m_osd, &OsdMonitor::showProgress);
+    connect(m_jobMonitor, &JobMonitor::failed, m_osd, &OsdMonitor::showText);
 
     connect(m_ipc, &IpcService::textRequested, m_osd, &OsdMonitor::showText);
     connect(m_ipc, &IpcService::progressRequested, m_osd, &OsdMonitor::showProgress);
@@ -156,6 +161,7 @@ void Application::start()
 {
     QStringList rules = OsdMonitor::matchRules();
     rules += NotificationMonitor::matchRules(m_config->value(u"notifications.trackIds"_s, true).toBool());
+    rules += JobMonitor::matchRules();
 
     m_monitor = new DBusMonitor(this);
     connect(m_monitor, &DBusMonitor::messageReceived, this, &Application::onBusMessage);
@@ -185,7 +191,10 @@ void Application::onBusMessage(const DBusMessageInfo &message)
     if (m_osd->handleMessage(message)) {
         return;
     }
-    m_notificationMonitor->handleMessage(message);
+    if (m_notificationMonitor->handleMessage(message)) {
+        return;
+    }
+    m_jobMonitor->handleMessage(message);
 }
 
 void Application::adjustVolume(int deltaPercent)
