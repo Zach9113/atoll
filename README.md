@@ -90,6 +90,12 @@ Install Cranked Audio with one command (no root needed):
 curl -sSL https://raw.githubusercontent.com/Zach9113/cranked-audio/main/install-release.sh | bash
 ```
 
+Or install **both** Atoll and Cranked Audio together in one command:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/Zach9113/cranked-audio/main/install-both.sh | bash
+```
+
 Once installed, Atoll auto-detects it immediately. You can customize scroll sensitivity under Atoll Settings > **Behaviour** > **Mixer volume step**.
 
 ### Where it appears
