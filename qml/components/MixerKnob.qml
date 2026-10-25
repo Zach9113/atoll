@@ -24,6 +24,10 @@ Item {
     readonly property string pressAction: knob.press || ""
     readonly property bool hasAction: pressAction !== "" && pressAction !== "Nothing"
     readonly property bool buttonInside: Boolean(Cfg.get("behavior.mixerButtonInsideKnob", false))
+    readonly property bool showNames: Boolean(Cfg.get("behavior.mixerShowNames", true))
+    readonly property bool showPercent: Boolean(Cfg.get("behavior.mixerShowPercent", true))
+    readonly property bool showSource: Boolean(Cfg.get("behavior.mixerShowSource", true))
+    readonly property bool showButtons: Boolean(Cfg.get("behavior.mixerShowButtons", true))
 
     function getActionIcon(p) {
         if (p === "Play/Pause") return ["media-playback-pause", "media-playback-start"]
@@ -57,7 +61,8 @@ Item {
         // Knob Name
         Text {
             width: parent.width
-            height: 14
+            height: visible ? 14 : 0
+            visible: knobItem.showNames
             text: knobItem.knobName
             color: Theme.foreground
             font.family: Theme.fontFamily
@@ -124,10 +129,10 @@ Item {
                 }
             }
 
-            // Level text inside the ring (shown when button is NOT inside or channel has no action)
+            // Level text inside the ring (shown when button is NOT inside, or no button visible, or channel has no action)
             Text {
                 anchors.centerIn: parent
-                visible: !knobItem.buttonInside || !knobItem.hasAction
+                visible: knobItem.showPercent && (!knobItem.buttonInside || !knobItem.hasAction || !knobItem.showButtons)
                 text: knobItem.isMuted ? qsTr("Mute") : (knobItem.level < 0 ? "–" : (knobItem.level + "%"))
                 color: knobItem.isMuted ? Theme.critical : Theme.foreground
                 font.family: Theme.fontFamily
@@ -179,17 +184,17 @@ Item {
                 anchors.centerIn: parent
                 width: 26
                 height: 26
-                visible: knobItem.buttonInside && knobItem.hasAction
+                visible: knobItem.showButtons && knobItem.buttonInside && knobItem.hasAction
                 icon: knobItem.getActionIcon(knobItem.pressAction)
                 onClicked: App.cranked.press(knobItem.knobIndex)
             }
         }
 
-        // Level text below dial (shown when button is inside knob)
+        // Level text below dial (shown when button is inside knob and visible)
         Text {
             width: parent.width
             height: visible ? 13 : 0
-            visible: knobItem.buttonInside
+            visible: knobItem.showPercent && knobItem.buttonInside && knobItem.showButtons && knobItem.hasAction
             text: knobItem.isMuted ? qsTr("Mute") : (knobItem.level < 0 ? "–" : (knobItem.level + "%"))
             color: knobItem.isMuted ? Theme.critical : Theme.foreground
             font.family: Theme.fontFamily
@@ -202,7 +207,8 @@ Item {
         // Source / App Name
         Text {
             width: parent.width
-            height: 12
+            height: visible ? 12 : 0
+            visible: knobItem.showSource
             text: knobItem.isMuted ? qsTr("Muted") : knobItem.sourceText
             color: knobItem.isLowered ? Theme.accent : Theme.muted
             font.family: Theme.fontFamily
@@ -217,7 +223,7 @@ Item {
         Item {
             width: parent.width
             height: visible ? 26 : 0
-            visible: !knobItem.buttonInside
+            visible: knobItem.showButtons && !knobItem.buttonInside
 
             RoundButton {
                 anchors.centerIn: parent

@@ -579,7 +579,10 @@ Item {
                     icon: ["io.github.zach9113.CrankedAudio", "audio-card", "multimedia-volume-control"]
                     label: qsTr("Mixer")
                     checked: mixerCard.open
-                    onToggled: mixerCard.open = !mixerCard.open
+                    onToggled: {
+                        mixerCard.open = !mixerCard.open
+                        Cfg.set("behavior.mixerExpanded", mixerCard.open)
+                    }
                 }
 
                 QuickToggle {
@@ -614,7 +617,7 @@ Item {
             Rectangle {
                 id: mixerCard
 
-                property bool open: false
+                property bool open: Cfg.get("behavior.mixerExpanded", false)
                 readonly property string currentStyle: Cfg.get("behavior.mixerStyle", "knobs")
 
                 visible: !view.showingCalendar && App.cranked.available && open

@@ -23,6 +23,10 @@ Item {
     readonly property string sourceText: knob.source || ""
     readonly property string pressAction: knob.press || ""
     readonly property bool hasAction: pressAction !== "" && pressAction !== "Nothing"
+    readonly property bool showNames: Boolean(Cfg.get("behavior.mixerShowNames", true))
+    readonly property bool showPercent: Boolean(Cfg.get("behavior.mixerShowPercent", true))
+    readonly property bool showSource: Boolean(Cfg.get("behavior.mixerShowSource", true))
+    readonly property bool showButtons: Boolean(Cfg.get("behavior.mixerShowButtons", true))
 
     readonly property real ratio: Math.max(0, Math.min(1, (level >= 0 ? level : 0) / 100.0))
 
@@ -45,13 +49,15 @@ Item {
     Column {
         id: labelCol
         anchors.left: colorBar.right
-        anchors.leftMargin: 10
+        anchors.leftMargin: (sliderItem.showNames || sliderItem.showSource) ? 10 : 2
         anchors.verticalCenter: parent.verticalCenter
-        width: 95
+        width: (sliderItem.showNames || sliderItem.showSource) ? 95 : 0
+        visible: sliderItem.showNames || sliderItem.showSource
         spacing: 2
 
         Text {
             width: parent.width
+            visible: sliderItem.showNames
             text: sliderItem.knobName
             color: Theme.foreground
             font.family: Theme.fontFamily
@@ -63,6 +69,7 @@ Item {
 
         Text {
             width: parent.width
+            visible: sliderItem.showSource
             text: sliderItem.isMuted ? qsTr("Muted") : (sliderItem.sourceText || qsTr("Idle"))
             color: sliderItem.isLowered ? Theme.accent : Theme.muted
             font.family: Theme.fontFamily
@@ -76,11 +83,11 @@ Item {
     Item {
         id: actionBtnItem
         anchors.right: parent.right
-        anchors.rightMargin: 6
+        anchors.rightMargin: (sliderItem.showButtons && sliderItem.hasAction) ? 6 : 0
         anchors.verticalCenter: parent.verticalCenter
-        width: sliderItem.hasAction ? 26 : 0
+        width: (sliderItem.showButtons && sliderItem.hasAction) ? 26 : 0
         height: 26
-        visible: sliderItem.hasAction
+        visible: sliderItem.showButtons && sliderItem.hasAction
 
         RoundButton {
             anchors.fill: parent
@@ -102,9 +109,10 @@ Item {
     Text {
         id: pctLabel
         anchors.right: actionBtnItem.left
-        anchors.rightMargin: sliderItem.hasAction ? 8 : 4
+        anchors.rightMargin: (sliderItem.showButtons && sliderItem.hasAction) ? 8 : 4
         anchors.verticalCenter: parent.verticalCenter
-        width: 36
+        width: sliderItem.showPercent ? 36 : 0
+        visible: sliderItem.showPercent
         horizontalAlignment: Text.AlignRight
         text: sliderItem.isMuted ? qsTr("Mute") : (sliderItem.level < 0 ? "–" : (sliderItem.level + "%"))
         color: sliderItem.isMuted ? Theme.critical : Theme.foreground
@@ -116,9 +124,9 @@ Item {
     // Horizontal Slider Track (stretches dynamically between labelCol and pctLabel)
     Item {
         id: trackContainer
-        anchors.left: labelCol.right
+        anchors.left: (sliderItem.showNames || sliderItem.showSource) ? labelCol.right : colorBar.right
         anchors.leftMargin: 12
-        anchors.right: pctLabel.left
+        anchors.right: pctLabel.visible ? pctLabel.left : (actionBtnItem.visible ? actionBtnItem.left : parent.right)
         anchors.rightMargin: 12
         anchors.verticalCenter: parent.verticalCenter
         height: 24

@@ -21,6 +21,10 @@ Item {
     readonly property bool isLowered: Boolean(knob.lowered)
     readonly property string sourceText: knob.source || ""
     readonly property string pressAction: knob.press || ""
+    readonly property bool showNames: Boolean(Cfg.get("behavior.mixerShowNames", true))
+    readonly property bool showPercent: Boolean(Cfg.get("behavior.mixerShowPercent", true))
+    readonly property bool showSource: Boolean(Cfg.get("behavior.mixerShowSource", true))
+    readonly property bool showButtons: Boolean(Cfg.get("behavior.mixerShowButtons", true))
 
     readonly property real ratio: Math.max(0, Math.min(1, (level >= 0 ? level : 0) / 100.0))
 
@@ -46,7 +50,8 @@ Item {
         // Channel Name
         Text {
             width: parent.width
-            height: 14
+            height: visible ? 14 : 0
+            visible: faderItem.showNames
             text: faderItem.knobName
             color: Theme.foreground
             font.family: Theme.fontFamily
@@ -145,7 +150,8 @@ Item {
         // Level text
         Text {
             width: parent.width
-            height: 12
+            height: visible ? 12 : 0
+            visible: faderItem.showPercent
             text: faderItem.isMuted ? qsTr("Mute") : (faderItem.level < 0 ? "–" : (faderItem.level + "%"))
             color: faderItem.isMuted ? Theme.critical : Theme.foreground
             font.family: Theme.fontFamily
@@ -158,7 +164,8 @@ Item {
         // Source / App Name
         Text {
             width: parent.width
-            height: 12
+            height: visible ? 12 : 0
+            visible: faderItem.showSource
             text: faderItem.isMuted ? qsTr("Muted") : faderItem.sourceText
             color: faderItem.isLowered ? Theme.accent : Theme.muted
             font.family: Theme.fontFamily
@@ -172,7 +179,8 @@ Item {
         // Button Action Pill
         Item {
             width: parent.width
-            height: 26
+            height: visible ? 26 : 0
+            visible: faderItem.showButtons
 
             RoundButton {
                 anchors.centerIn: parent
