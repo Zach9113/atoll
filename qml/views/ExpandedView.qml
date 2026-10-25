@@ -633,7 +633,9 @@ Item {
 
                 Column {
                     id: mixerBody
-                    anchors.fill: parent
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
                     anchors.margins: 10
                     spacing: 8
 
@@ -782,29 +784,19 @@ Item {
                         }
                     }
 
-                    // Style 3: Sliders (horizontal volume rows)
-                    Flickable {
+                    // Style 3: Sliders (horizontal volume rows, expands dynamically to fit all channels)
+                    Column {
+                        id: slidersCol
                         visible: mixerCard.currentStyle === "sliders"
                         width: parent.width
-                        height: visible ? Math.min(220, slidersCol.implicitHeight) : 0
-                        contentWidth: width
-                        contentHeight: visible ? slidersCol.implicitHeight : 0
-                        flickableDirection: Flickable.VerticalFlick
-                        clip: true
-                        boundsBehavior: Flickable.StopAtBounds
+                        spacing: 6
 
-                        Column {
-                            id: slidersCol
-                            width: parent.width
-                            spacing: 6
-
-                            Repeater {
-                                model: mixerCard.currentStyle === "sliders" ? App.cranked.knobs : []
-                                delegate: MixerSlider {
-                                    width: slidersCol.width
-                                    knob: modelData
-                                    knobIndex: index
-                                }
+                        Repeater {
+                            model: mixerCard.currentStyle === "sliders" ? App.cranked.knobs : []
+                            delegate: MixerSlider {
+                                width: slidersCol.width
+                                knob: modelData
+                                knobIndex: index
                             }
                         }
                     }
