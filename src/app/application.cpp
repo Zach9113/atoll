@@ -30,6 +30,8 @@
 #include <QDBusConnectionInterface>
 #include <QDBusMessage>
 #include <QDesktopServices>
+#include <QDir>
+#include <QFile>
 #include <QGuiApplication>
 #include <QProcess>
 #include <QProcessEnvironment>
@@ -240,6 +242,38 @@ void Application::toggleMute()
     const QString pactl = QStandardPaths::findExecutable(u"pactl"_s);
     if (!pactl.isEmpty()) {
         QProcess::startDetached(pactl, {u"set-sink-mute"_s, u"@DEFAULT_SINK@"_s, u"toggle"_s});
+    }
+}
+
+void Application::openMixer()
+{
+    // Try the Cranked Audio D-Bus API first
+    QDBusMessage msg = QDBusMessage::createMethodCall(
+        u"io.github.zach9113.CrankedAudio"_s,
+        u"/io/github/zach9113/CrankedAudio"_s,
+        u"io.github.zach9113.CrankedAudio1"_s,
+        u"OpenWindow"_s);
+    QDBusMessage reply = QDBusConnection::sessionBus().call(msg);
+    if (reply.type() == QDBusMessage::ReplyMessage) {
+        return;
+    }
+
+    // Try starting cranked-audio executable
+    const QString localBin = QDir::homePath() + u"/.local/bin/cranked-audio"_s;
+    if (QFile::exists(localBin)) {
+        QProcess::startDetached(localBin, {});
+        return;
+    }
+    const QString cranked = QStandardPaths::findExecutable(u"cranked-audio"_s);
+    if (!cranked.isEmpty()) {
+        QProcess::startDetached(cranked, {});
+        return;
+    }
+
+    // Fallback to desktop volume control
+    const QString pavu = QStandardPaths::findExecutable(u"pavucontrol"_s);
+    if (!pavu.isEmpty()) {
+        QProcess::startDetached(pavu, {});
     }
 }
 

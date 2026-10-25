@@ -575,6 +575,15 @@ Item {
                 }
 
                 QuickToggle {
+                    icon: ["io.github.zach9113.CrankedAudio", "audio-card", "multimedia-volume-control"]
+                    label: qsTr("Mixer")
+                    onToggled: {
+                        App.openMixer()
+                        view.collapseRequested()
+                    }
+                }
+
+                QuickToggle {
                     visible: (Cfg.modules.bluetooth ?? true) && App.bluetooth.present
                     icon: [App.bluetooth.powered ? "bluetooth-active" : "bluetooth-disabled",
                            "preferences-system-bluetooth"]

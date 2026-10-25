@@ -568,8 +568,11 @@ Item {
     TapHandler {
         acceptedButtons: Qt.MiddleButton
         onTapped: {
-            if ((Cfg.behavior.middleClickAction ?? "playPause") === "playPause" && island.hasMedia) {
+            const action = Cfg.behavior.middleClickAction ?? "playPause"
+            if (action === "playPause" && island.hasMedia) {
                 App.media.active.playPause()
+            } else if (action === "mixer") {
+                App.openMixer()
             }
         }
     }
@@ -588,6 +591,10 @@ Item {
             switch (Cfg.behavior.rightClickAction ?? "settings") {
             case "settings":
                 App.openSettings()
+                island.expanded = false
+                break
+            case "mixer":
+                App.openMixer()
                 island.expanded = false
                 break
             case "collapse":

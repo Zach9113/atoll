@@ -26,6 +26,7 @@ SettingsPage {
             defaultValue: "playPause"
             options: [
                 { value: "playPause", label: qsTr("Play / pause") },
+                { value: "mixer", label: qsTr("Open mixer (Cranked Audio)") },
                 { value: "none", label: qsTr("Nothing") }
             ]
         }
@@ -36,6 +37,7 @@ SettingsPage {
             defaultValue: "settings"
             options: [
                 { value: "settings", label: qsTr("Open settings") },
+                { value: "mixer", label: qsTr("Open mixer (Cranked Audio)") },
                 { value: "collapse", label: qsTr("Collapse") },
                 { value: "none", label: qsTr("Nothing") }
             ]
