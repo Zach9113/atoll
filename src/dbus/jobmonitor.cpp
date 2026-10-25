@@ -9,8 +9,10 @@
 
 #include <KLocalizedString>
 
+#include <QFileInfo>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QUrl>
 
 using namespace Qt::StringLiterals;
 
@@ -40,19 +42,47 @@ QStringList JobMonitor::matchRules()
     };
 }
 
-QString JobMonitor::iconFor(const QString &desktopEntry)
+QPair<QString, QString> JobMonitor::appInfo(const QString &desktopEntry)
 {
     if (desktopEntry.isEmpty()) {
-        return FallbackIcon;
+        return {};
     }
     const QString path =
         QStandardPaths::locate(QStandardPaths::ApplicationsLocation, desktopEntry + u".desktop"_s);
     if (path.isEmpty()) {
-        return FallbackIcon;
+        return {};
     }
     QSettings desktopFile(path, QSettings::IniFormat);
-    const QString icon = desktopFile.value(u"Desktop Entry/Icon"_s).toString();
-    return icon.isEmpty() ? QString(FallbackIcon) : icon;
+    return {desktopFile.value(u"Desktop Entry/Name"_s).toString(), desktopFile.value(u"Desktop Entry/Icon"_s).toString()};
+}
+
+NotificationData JobMonitor::finishedEntry(const Job &job)
+{
+    NotificationData entry;
+    entry.uid = m_nextUid++;
+    entry.appName = job.appName.isEmpty() ? i18n("File transfer") : job.appName;
+    entry.appIcon = job.icon;
+    entry.desktopEntry = job.desktopEntry;
+    entry.summary = job.title.isEmpty() ? i18n("Transfer finished") : i18nc("@title job title", "%1 (Finished)", job.title);
+    entry.timestamp = QDateTime::currentDateTime();
+    // The island already showed the progress; only the list needs this.
+    entry.transient = true;
+
+    const QUrl file = QUrl::fromUserInput(job.destination);
+    const QString fileName = file.isValid() ? file.fileName() : QString();
+    const QString folder = QUrl(job.destUrl).fileName();
+    if (!fileName.isEmpty() && !folder.isEmpty()) {
+        entry.body = i18nc("@info file name, destination folder", "%1 to %2", fileName, folder);
+    } else {
+        entry.body = fileName.isEmpty() ? folder : fileName;
+    }
+
+    static const QStringList imageSuffixes{u"jpg"_s, u"jpeg"_s, u"png"_s, u"webp"_s, u"gif"_s, u"bmp"_s};
+    if (file.isLocalFile() && imageSuffixes.contains(QFileInfo(fileName).suffix().toLower())
+        && QFileInfo::exists(file.toLocalFile())) {
+        entry.imageUrl = file.toString();
+    }
+    return entry;
 }
 
 bool JobMonitor::worthShowing(const Job &job) const
@@ -73,7 +103,10 @@ bool JobMonitor::handleMessage(const DBusMessageInfo &message)
             return true;
         }
         Job job;
-        job.icon = iconFor(request.desktopEntry);
+        const auto [name, icon] = appInfo(request.desktopEntry);
+        job.desktopEntry = request.desktopEntry;
+        job.appName = name;
+        job.icon = icon.isEmpty() ? QString(FallbackIcon) : icon;
         job.immediate = request.immediate;
         job.age.start();
         m_jobs.insert(message.arguments.first().toString(), job);
@@ -117,6 +150,12 @@ bool JobMonitor::handleMessage(const DBusMessageInfo &message)
         if (hints.contains(u"title"_s)) {
             job.title = hints.value(u"title"_s).toString();
         }
+        if (hints.contains(u"destUrl"_s)) {
+            job.destUrl = hints.value(u"destUrl"_s).toString();
+        }
+        if (hints.contains(u"descriptionValue2"_s)) {
+            job.destination = hints.value(u"descriptionValue2"_s).toString();
+        }
         if (hints.contains(u"percent"_s)) {
             job.percent = qBound(0, hints.value(u"percent"_s).toInt(), 100);
         }
@@ -133,6 +172,7 @@ bool JobMonitor::handleMessage(const DBusMessageInfo &message)
             // Error code 1 is KJob::KilledJobError, a cancel by the user.
             if (errorCode == 0) {
                 Q_EMIT progress(job.icon, 100, job.title.isEmpty() ? i18n("Transfer finished") : job.title);
+                Q_EMIT finished(finishedEntry(job));
             } else if (errorCode != 1) {
                 Q_EMIT failed(u"dialog-error"_s, errorText.isEmpty() ? i18n("Transfer failed") : errorText);
             }

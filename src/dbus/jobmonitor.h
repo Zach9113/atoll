@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include "notificationmonitor.h"
+
 struct DBusMessageInfo;
 class Config;
 
@@ -19,7 +21,9 @@ class Config;
  * notification: they report progress to Plasma's job tracker
  * (`org.kde.JobViewServerV2` and the `org.kde.JobViewV3` objects it hands
  * out). Listening in on those calls lets the island show the same progress
- * Plasma's job popup does.
+ * Plasma's job popup does, and list a finished transfer the way Plasma's own
+ * history does (Plasma makes that entry itself, so no notification exists
+ * to mirror).
  */
 class JobMonitor : public QObject
 {
@@ -37,6 +41,8 @@ public:
 Q_SIGNALS:
     void progress(const QString &icon, int percent, const QString &text);
     void failed(const QString &icon, const QString &text);
+    /** A finished transfer, for the notification list. */
+    void finished(const NotificationData &entry);
 
 private:
     struct PendingView {
@@ -45,8 +51,12 @@ private:
     };
 
     struct Job {
+        QString desktopEntry;
+        QString appName;
         QString icon;
         QString title;
+        QString destUrl;
+        QString destination; //!< descriptionValue2: the file written, for transfers
         bool immediate = false;
         int percent = -1;
         QElapsedTimer age;
@@ -54,9 +64,13 @@ private:
 
     /** Plasma also keeps quick, non-immediate jobs off screen. */
     bool worthShowing(const Job &job) const;
-    static QString iconFor(const QString &desktopEntry);
+    NotificationData finishedEntry(const Job &job);
+    /** Name and Icon of a desktop entry; empty when it cannot be found. */
+    static QPair<QString, QString> appInfo(const QString &desktopEntry);
 
     Config *m_config = nullptr;
     QHash<quint32, PendingView> m_pending; //!< requestView serial -> request
     QHash<QString, Job> m_jobs; //!< JobView object path -> job
+    // Far above anything NotificationMonitor hands out, so uids never clash.
+    quint64 m_nextUid = quint64(1) << 48;
 };

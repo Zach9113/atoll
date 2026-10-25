@@ -94,6 +94,7 @@ Application::Application(QObject *parent)
 
     connect(m_jobMonitor, &JobMonitor::progress, m_osd, &OsdMonitor::showProgress);
     connect(m_jobMonitor, &JobMonitor::failed, m_osd, &OsdMonitor::showText);
+    connect(m_jobMonitor, &JobMonitor::finished, m_notifications, &NotificationModel::onPosted);
 
     connect(m_ipc, &IpcService::textRequested, m_osd, &OsdMonitor::showText);
     connect(m_ipc, &IpcService::progressRequested, m_osd, &OsdMonitor::showProgress);
