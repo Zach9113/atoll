@@ -186,6 +186,8 @@ Item {
                 height: 26
                 visible: knobItem.showButtons && knobItem.buttonInside && knobItem.hasAction
                 icon: knobItem.getActionIcon(knobItem.pressAction)
+                tipAbove: true
+                tooltip: qsTr("Press: %1").arg(knobItem.pressAction) + ((knobItem.knob.hold || "") !== "" && knobItem.knob.hold !== "Nothing" ? "\n" + qsTr("Hold: %1").arg(knobItem.knob.hold) : "")
                 onClicked: App.cranked.press(knobItem.knobIndex)
             }
         }
@@ -231,6 +233,8 @@ Item {
                 height: 24
                 visible: knobItem.hasAction
                 icon: knobItem.getActionIcon(knobItem.pressAction)
+                tipAbove: true
+                tooltip: qsTr("Press: %1").arg(knobItem.pressAction) + ((knobItem.knob.hold || "") !== "" && knobItem.knob.hold !== "Nothing" ? "\n" + qsTr("Hold: %1").arg(knobItem.knob.hold) : "")
                 onClicked: App.cranked.press(knobItem.knobIndex)
             }
         }

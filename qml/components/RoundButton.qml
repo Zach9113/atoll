@@ -98,6 +98,7 @@ Item {
             color: Theme.foreground
             font.family: Theme.fontFamily
             font.pixelSize: Theme.size(9.5)
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 }

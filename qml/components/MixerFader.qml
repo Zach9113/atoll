@@ -200,6 +200,8 @@ Item {
                 }
 
                 onClicked: App.cranked.press(faderItem.knobIndex)
+                tipAbove: true
+                tooltip: qsTr("Press: %1").arg(faderItem.pressAction) + ((faderItem.knob.hold || "") !== "" && faderItem.knob.hold !== "Nothing" ? "\n" + qsTr("Hold: %1").arg(faderItem.knob.hold) : "")
             }
         }
     }
