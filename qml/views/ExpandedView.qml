@@ -724,15 +724,6 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
 
-                            // Profile cycle button
-                            RoundButton {
-                                visible: App.cranked.profiles.length > 1
-                                width: 22
-                                height: 22
-                                icon: ["view-media-playlist", "media-playlist-repeat", "go-next"]
-                                onClicked: App.cranked.nextProfile()
-                            }
-
                             // Button inside knob toggle (knobs style only)
                             RoundButton {
                                 visible: mixerCard.currentStyle === "knobs"
