@@ -99,9 +99,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: Math.round((1.0 - faderItem.ratio) * (faderArea.height - height))
 
-                color: Theme.tint(0.2)
-                border.width: 1
-                border.color: Theme.tint(0.35)
+                color: Theme.tint(0.22)
 
                 // Grip indicator line in knob color
                 Rectangle {
