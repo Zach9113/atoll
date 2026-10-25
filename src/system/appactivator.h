@@ -35,6 +35,9 @@ public:
     /** Raise or launch whatever published this notification. */
     void activate(const QString &desktopEntry, const QString &appName);
 
+    /** Called via D-Bus from KWin script when an active window was found and raised. */
+    Q_INVOKABLE void markActivated();
+
 private:
     struct DesktopApp {
         QString path;
@@ -48,6 +51,7 @@ private:
 
     std::optional<DesktopApp> resolve(const QString &desktopEntry, const QString &appName) const;
     void bringUp(const DesktopApp &app);
+    bool activateViaKWin(const QString &target);
     void requestToken(const std::function<void(const QString &)> &done);
     static DesktopApp parseDesktopFile(const QString &path);
     static QString expandFieldCodes(QString exec);
@@ -58,4 +62,5 @@ private:
 
     mutable QHash<QString, QString> m_index;
     mutable bool m_indexBuilt = false;
+    bool m_lastActivationSucceeded = false;
 };

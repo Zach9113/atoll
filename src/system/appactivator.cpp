@@ -15,6 +15,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStandardPaths>
+#include <QTemporaryFile>
 
 #ifdef ATOLL_XDG_ACTIVATION
 #include <QtGui/qguiapplication_platform.h>
@@ -50,12 +51,104 @@ QStringList applicationDirs()
 AppActivator::AppActivator(QObject *parent)
     : QObject(parent)
 {
+    QDBusConnection::sessionBus().registerObject(u"/Activator"_s, u"org.atoll.Activator"_s, this, QDBusConnection::ExportAllInvokables);
+}
+
+void AppActivator::markActivated()
+{
+    m_lastActivationSucceeded = true;
+}
+
+bool AppActivator::activateViaKWin(const QString &target)
+{
+    if (target.trimmed().isEmpty()) {
+        return false;
+    }
+    const QString clean = target.trimmed().toLower();
+    m_lastActivationSucceeded = false;
+
+    QTemporaryFile tempScript;
+    tempScript.setFileTemplate(QDir::tempPath() + u"/atoll-kwin-activate-XXXXXX.js"_s);
+    if (!tempScript.open()) {
+        return false;
+    }
+
+    const QString js = uR"(
+for (const client of workspace.windowList()) {
+    const df = (client.desktopFileName || "").toLowerCase();
+    const rc = (client.resourceClass || "").toLowerCase();
+    const rn = (client.resourceName || "").toLowerCase();
+    const cp = (client.caption || "").toLowerCase();
+    if (df.includes("%1") || rc.includes("%1") || rn.includes("%1") || cp.includes("%1")) {
+        client.minimized = false;
+        workspace.activeWindow = client;
+        callDBus("org.atoll.Atoll", "/Activator", "org.atoll.Activator", "markActivated");
+        break;
+    }
+}
+)"_s.arg(clean);
+
+    tempScript.write(js.toUtf8());
+    tempScript.flush();
+    const QString scriptPath = tempScript.fileName();
+
+    auto msg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
+                                              u"/Scripting"_s,
+                                              u"org.kde.kwin.Scripting"_s,
+                                              u"loadScript"_s);
+    msg << scriptPath;
+    const QDBusMessage reply = QDBusConnection::sessionBus().call(msg, QDBus::Block, 400);
+    if (reply.type() == QDBusMessage::ReplyMessage && !reply.arguments().isEmpty()) {
+        const int scriptId = reply.arguments().at(0).toInt();
+        if (scriptId >= 0) {
+            auto runMsg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
+                                                         u"/Scripting/Script%1"_s.arg(scriptId),
+                                                         u"org.kde.kwin.Script"_s,
+                                                         u"run"_s);
+            QDBusConnection::sessionBus().call(runMsg, QDBus::Block, 400);
+
+            auto unloadMsg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
+                                                            u"/Scripting"_s,
+                                                            u"org.kde.kwin.Scripting"_s,
+                                                            u"unloadScript"_s);
+            unloadMsg << scriptPath;
+            QDBusConnection::sessionBus().call(unloadMsg, QDBus::NoBlock);
+        }
+    }
+    return m_lastActivationSucceeded;
 }
 
 void AppActivator::activate(const QString &desktopEntry, const QString &appName)
 {
+    // Try to raise existing window first via KWin Wayland.
+    // Solves single-instance Electron apps (Vesktop, Discord, Slack) that cannot self-raise on Wayland.
+    QStringList targets;
+    if (!desktopEntry.isEmpty()) {
+        QString de = desktopEntry;
+        if (de.endsWith(u".desktop"_s)) {
+            de.chop(8);
+        }
+        targets << de;
+    }
+    if (!appName.isEmpty()) {
+        targets << appName;
+    }
+    if (desktopEntry.contains(u"vesktop"_s, Qt::CaseInsensitive) || appName.contains(u"vesktop"_s, Qt::CaseInsensitive)) {
+        targets << u"vesktop"_s << u"discord"_s;
+    }
+    targets.removeDuplicates();
+
+    for (const QString &t : targets) {
+        if (activateViaKWin(t)) {
+            return;
+        }
+    }
+
     const auto app = resolve(desktopEntry, appName);
     if (app.has_value()) {
+        if (!app->wmClass.isEmpty() && activateViaKWin(app->wmClass)) {
+            return;
+        }
         bringUp(*app);
         return;
     }

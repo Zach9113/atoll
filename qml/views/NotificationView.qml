@@ -215,7 +215,7 @@ Item {
                     }
                 }
 
-                // Quick open pill for Vesktop / Discord
+                // Quick reply pill for Vesktop / Discord (raises conversation)
                 Rectangle {
                     id: vesktopPill
                     visible: !view.replying && !view.hasReplyOption && view.isVesktop
@@ -235,11 +235,11 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 13
                             height: 13
-                            names: ["vesktop", "discord", "dialog-information"]
+                            names: ["mail-reply-sender", "edit-undo", "vesktop", "discord"]
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: qsTr("Open")
+                            text: qsTr("Reply")
                             color: Theme.foreground
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.size(11)
