@@ -18,6 +18,12 @@ Row {
     property real minimumHeight: 2
 
     readonly property var values: limit > 0 ? bars.slice(0, limit) : bars
+    // Off screen while the island is dodged, even though it is still "visible".
+    readonly property bool shown: visible && opacity > 0 && !(App.ipc && App.ipc.dodged)
+
+    onShownChanged: App.visualizer.setViewer(spectrum, shown)
+    Component.onCompleted: App.visualizer.setViewer(spectrum, shown)
+    Component.onDestruction: App.visualizer.setViewer(spectrum, false)
 
     spacing: 2
 

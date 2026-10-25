@@ -27,7 +27,7 @@ Visualizer::Visualizer(Config *config, QObject *parent)
     connect(&m_syntheticTimer, &QTimer::timeout, this, &Visualizer::stepSynthetic);
 
     connect(m_config, &Config::changed, this, [this] {
-        if (m_active) {
+        if (m_running) {
             stop();
             start();
         }
@@ -51,10 +51,38 @@ void Visualizer::setActive(bool active)
     }
     m_active = active;
     Q_EMIT activeChanged();
+    updateRunning();
+}
 
-    if (active) {
+void Visualizer::setViewer(QObject *viewer, bool shown)
+{
+    if (!viewer) {
+        return;
+    }
+    if (shown && !m_viewers.contains(viewer)) {
+        m_viewers.insert(viewer);
+        connect(viewer, &QObject::destroyed, this, [this, viewer] {
+            m_viewers.remove(viewer);
+            updateRunning();
+        });
+    } else if (!shown && m_viewers.remove(viewer)) {
+        viewer->disconnect(this);
+    }
+    updateRunning();
+}
+
+void Visualizer::updateRunning()
+{
+    const bool running = m_active && !m_viewers.isEmpty();
+    if (running == m_running) {
+        return;
+    }
+    m_running = running;
+
+    if (running) {
         start();
-    } else if (m_source == u"cava"_s) {
+    } else if (m_source == u"cava"_s || m_viewers.isEmpty()) {
+        // Nobody can see the bars: stop at once rather than animate them down.
         stop();
     } else {
         // Let the synthetic bars fall gracefully instead of snapping to zero.

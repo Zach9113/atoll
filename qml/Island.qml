@@ -503,6 +503,8 @@ Item {
 
         Spectrum {
             anchors.centerIn: parent
+            // The satellite fades rather than hides; a faded one is not watching the bars.
+            visible: parent.opacity > 0
             height: parent.height * 0.42
             barWidth: 2
             spacing: 2

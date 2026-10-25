@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QObject>
+#include <QSet>
 #include <QTimer>
 #include <QVariantList>
 #include <QtQml/qqmlregistration.h>
@@ -47,6 +48,13 @@ public:
         return m_source;
     }
 
+    /**
+     * A Spectrum reports whether it is on screen. The bars only run while
+     * something plays and at least one Spectrum can be seen, so a dodged
+     * island or another view showing costs nothing.
+     */
+    Q_INVOKABLE void setViewer(QObject *viewer, bool shown);
+
 Q_SIGNALS:
     void barsChanged();
     void activeChanged();
@@ -54,6 +62,7 @@ Q_SIGNALS:
 
 private:
     int barCount() const;
+    void updateRunning();
     void start();
     void stop();
     bool startCava();
@@ -69,6 +78,8 @@ private:
     QString m_source = QStringLiteral("off");
     QString m_cavaConfigPath;
     QByteArray m_cavaBuffer;
+    QSet<QObject *> m_viewers;
     bool m_active = false;
+    bool m_running = false;
     bool m_draining = false;
 };

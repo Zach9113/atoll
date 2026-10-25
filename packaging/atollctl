@@ -62,7 +62,7 @@ case "$command" in
             false|0|off|no) arg="false" ;;
             *) arg="true" ;;
         esac
-        call setDodged boolean:$arg
+        call setDodged "$arg"
         ;;
     reload) call reloadConfig ;;
     settings)
