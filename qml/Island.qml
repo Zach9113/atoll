@@ -136,6 +136,10 @@ Item {
         if (!App.busTapActive && busWarning.running) {
             return "warning"
         }
+        // A reply being typed outranks the OSD: turning a knob mid-sentence must not close it.
+        if (replyActive && !lockedQuiet) {
+            return "notification"
+        }
         if (osdTimer.running) {
             return "osd"
         }
@@ -206,7 +210,7 @@ Item {
         if (App.debugState) {
             console.warn("atoll: mode ->", mode, "size", Math.round(width) + "x" + Math.round(height))
         }
-        // Anything that takes the island over (an OSD, the dashboard, the assistant) closes the reply box with
+        // Anything that takes the island over (the dashboard, the assistant, a share) closes the reply box with
         // the notification view, so the reply is over: otherwise the island stays stuck on it, holding the keyboard.
         if (mode !== "notification") {
             replyActive = false
