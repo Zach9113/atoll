@@ -688,9 +688,9 @@ Item {
                     // Knobs Row
                     Flickable {
                         width: parent.width
-                        height: 124
+                        height: 130
                         contentWidth: Math.max(width, knobsRow.implicitWidth)
-                        contentHeight: 124
+                        contentHeight: 130
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
 
@@ -709,8 +709,8 @@ Item {
                                 model: App.cranked.knobs
                                 delegate: MixerKnob {
                                     width: 64
-                                    modelData: modelData
-                                    index: index
+                                    knob: modelData
+                                    knobIndex: index
                                 }
                             }
                         }
