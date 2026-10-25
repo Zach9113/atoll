@@ -26,8 +26,12 @@ class IpcService : public QObject, protected QDBusContext
     QML_ELEMENT
     QML_UNCREATABLE("Accessed through App.ipc")
 
+    Q_PROPERTY(bool dodged READ dodged NOTIFY dodgedChanged)
+
 public:
     explicit IpcService(QObject *parent = nullptr);
+
+    bool dodged() const { return m_dodged; }
 
     /** Claim the bus name. Returns false if another instance already has it. */
     bool registerOnBus();
@@ -44,6 +48,7 @@ public Q_SLOTS:
     Q_SCRIPTABLE void expand();
     Q_SCRIPTABLE void collapse();
     Q_SCRIPTABLE void toggle();
+    Q_SCRIPTABLE void setDodged(bool dodged);
     Q_SCRIPTABLE void showText(const QString &icon, const QString &text);
     Q_SCRIPTABLE void showProgress(const QString &icon, int percent, const QString &text);
     /** Offer these files to nearby devices, as if they had been dropped. */
@@ -111,6 +116,7 @@ Q_SIGNALS:
     void expandRequested();
     void collapseRequested();
     void toggleRequested();
+    void dodgedChanged(bool dodged);
     void dismissRequested();
     void textRequested(const QString &icon, const QString &text);
     void progressRequested(const QString &icon, int percent, const QString &text);
@@ -143,4 +149,5 @@ private:
 
     QHash<QString, OpenReview> m_reviews;
     int m_reviewCounter = 0;
+    bool m_dodged = false;
 };

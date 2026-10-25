@@ -54,6 +54,14 @@ void IpcService::toggle()
     Q_EMIT toggleRequested();
 }
 
+void IpcService::setDodged(bool dodged)
+{
+    if (m_dodged != dodged) {
+        m_dodged = dodged;
+        Q_EMIT dodgedChanged(m_dodged);
+    }
+}
+
 void IpcService::showText(const QString &icon, const QString &text)
 {
     Q_EMIT textRequested(icon, text);

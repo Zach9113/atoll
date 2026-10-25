@@ -55,6 +55,15 @@ shift
 
 case "$command" in
     toggle|expand|collapse|dismiss|quit|assistant) call "$command" ;;
+    dodge)
+        val="${1:-true}"
+        case "$val" in
+            true|1|on|yes) arg="true" ;;
+            false|0|off|no) arg="false" ;;
+            *) arg="true" ;;
+        esac
+        call setDodged boolean:$arg
+        ;;
     reload) call reloadConfig ;;
     settings)
         # Works whether or not an island is running: the window is its own

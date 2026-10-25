@@ -67,11 +67,37 @@ Item {
         satelliteRadius: -1
     }
 
+    property bool edgeHovered: false
+
+    Item {
+        id: edgeSensor
+        enabled: island.isDodged
+        y: stage.atBottom ? stage.height - 6 : 0
+        x: stage.islandX
+        width: Math.max(stage.totalWidth, 168)
+        height: 6
+
+        HoverHandler {
+            onHoveredChanged: {
+                stage.edgeHovered = hovered
+            }
+        }
+    }
+
     Island {
         id: island
         targetWindow: stage.targetWindow
         x: stage.islandX
-        y: stage.atBottom ? Math.max(0, stage.height - height) : 0
+        y: stage.atBottom
+           ? (island.isDodged ? stage.height : Math.max(0, stage.height - height))
+           : (island.isDodged ? -height : 0)
+
+        Behavior on y {
+            NumberAnimation {
+                duration: 250
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     // The dashboard can be taller than the configured canvas, especially with
@@ -92,12 +118,17 @@ Item {
 
         function regions() {
             const rects = []
-            if (island.width > 1 && island.height > 1) {
-                rects.push(Qt.rect(island.x, island.y, island.width, island.height))
-            }
-            if (island.satelliteSize > 1) {
-                const s = island.satelliteGeometry
-                rects.push(Qt.rect(island.x + s.x, island.y + s.y, s.width, s.height))
+            if (island.isDodged) {
+                const centre = stage.islandX + (stage.totalWidth > 0 ? stage.totalWidth : 168) / 2
+                rects.push(Qt.rect(centre - 80, stage.atBottom ? stage.height - 4 : 0, 160, 4))
+            } else {
+                if (island.width > 1 && island.height > 1) {
+                    rects.push(Qt.rect(island.x, island.y, island.width, island.height))
+                }
+                if (island.satelliteSize > 1) {
+                    const s = island.satelliteGeometry
+                    rects.push(Qt.rect(island.x + s.x, island.y + s.y, s.width, s.height))
+                }
             }
             if (rects.length === 0 && (Cfg.behavior.hoverPeek ?? true)) {
                 // A hidden island still needs somewhere to be woken up from.

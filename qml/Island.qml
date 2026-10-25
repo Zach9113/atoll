@@ -150,6 +150,11 @@ Item {
         return "idle"
     }
 
+    readonly property bool isDodged: (App.ipc && App.ipc.dodged)
+                                     && mode === "idle"
+                                     && !hovered
+                                     && !(parent && parent.edgeHovered)
+
     readonly property bool satelliteVisible: mode === "idle" && mediaPlaying && !lockedNoMedia
                                              && (Cfg.modules.media ?? true)
     property real satelliteSize: satelliteVisible ? Cfg.collapsedHeight : 0
