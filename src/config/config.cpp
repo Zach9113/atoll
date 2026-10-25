@@ -178,6 +178,7 @@ QVariantMap Config::defaults()
     "scrollAdjustsVolume": true,
     "volumeStep": 5,
     "mixerVolumeStep": 2,
+    "mixerStyle": "knobs",
     "clickAction": "expand",
     "middleClickAction": "playPause",
     "rightClickAction": "settings"

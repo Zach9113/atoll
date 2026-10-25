@@ -69,6 +69,18 @@ SettingsPage {
             from: 1
             to: 25
             suffix: "%"
+        }
+
+        ChoiceSetting {
+            label: qsTr("Mixer style")
+            description: qsTr("Visual layout for the Cranked Audio mixer card inside the island.")
+            key: "behavior.mixerStyle"
+            defaultValue: "knobs"
+            options: [
+                { value: "knobs", label: qsTr("Knobs (circular dials)") },
+                { value: "faders", label: qsTr("Faders (mixing desk)") },
+                { value: "sliders", label: qsTr("Sliders (horizontal bars)") }
+            ]
             last: true
         }
     }

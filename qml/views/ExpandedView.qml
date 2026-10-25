@@ -615,6 +615,7 @@ Item {
                 id: mixerCard
 
                 property bool open: false
+                readonly property string currentStyle: Cfg.get("behavior.mixerStyle", "knobs")
 
                 visible: !view.showingCalendar && App.cranked.available && open
                 width: parent.width
@@ -670,27 +671,58 @@ Item {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.size(10)
                             }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "· " + (mixerCard.currentStyle === "faders" ? qsTr("Faders") : (mixerCard.currentStyle === "sliders" ? qsTr("Sliders") : qsTr("Knobs")))
+                                color: Theme.muted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.size(9)
+                            }
                         }
 
-                        RoundButton {
+                        Row {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
-                            width: 22
-                            height: 22
-                            icon: ["window-new", "view-fullscreen"]
-                            onClicked: {
-                                App.cranked.openWindow()
-                                view.collapseRequested()
+                            spacing: 6
+
+                            // Style cycle button
+                            RoundButton {
+                                width: 22
+                                height: 22
+                                icon: {
+                                    const s = mixerCard.currentStyle
+                                    if (s === "faders") return ["view-media-equalizer", "audio-speakers", "format-align-vertical-center"]
+                                    if (s === "sliders") return ["view-list-details", "view-media-playlist", "format-align-horizontal-center"]
+                                    return ["media-seek-forward", "media-optical-audio", "applications-graphics"]
+                                }
+                                onClicked: {
+                                    const cur = mixerCard.currentStyle
+                                    const next = cur === "knobs" ? "faders" : (cur === "faders" ? "sliders" : "knobs")
+                                    Cfg.set("behavior.mixerStyle", next)
+                                }
+                            }
+
+                            // Pop out full window
+                            RoundButton {
+                                width: 22
+                                height: 22
+                                icon: ["window-new", "view-fullscreen"]
+                                onClicked: {
+                                    App.cranked.openWindow()
+                                    view.collapseRequested()
+                                }
                             }
                         }
                     }
 
-                    // Knobs Row
+                    // Style 1: Knobs (circular dials)
                     Flickable {
+                        visible: mixerCard.currentStyle === "knobs"
                         width: parent.width
-                        height: 130
+                        height: visible ? 130 : 0
                         contentWidth: Math.max(width, knobsRow.implicitWidth)
-                        contentHeight: 130
+                        contentHeight: visible ? 130 : 0
                         flickableDirection: Flickable.HorizontalFlick
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
@@ -707,9 +739,69 @@ Item {
                             }
 
                             Repeater {
-                                model: App.cranked.knobs
+                                model: mixerCard.currentStyle === "knobs" ? App.cranked.knobs : []
                                 delegate: MixerKnob {
                                     width: 64
+                                    knob: modelData
+                                    knobIndex: index
+                                }
+                            }
+                        }
+                    }
+
+                    // Style 2: Faders (mixing desk vertical faders)
+                    Flickable {
+                        visible: mixerCard.currentStyle === "faders"
+                        width: parent.width
+                        height: visible ? 130 : 0
+                        contentWidth: Math.max(width, fadersRow.implicitWidth)
+                        contentHeight: visible ? 130 : 0
+                        flickableDirection: Flickable.HorizontalFlick
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        Row {
+                            id: fadersRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: {
+                                const n = App.cranked.count
+                                if (n <= 1) return 0
+                                const totalKnobWidth = n * 64
+                                const remain = parent.width - totalKnobWidth
+                                return Math.max(6, Math.floor(remain / (n - 1)))
+                            }
+
+                            Repeater {
+                                model: mixerCard.currentStyle === "faders" ? App.cranked.knobs : []
+                                delegate: MixerFader {
+                                    width: 64
+                                    knob: modelData
+                                    knobIndex: index
+                                }
+                            }
+                        }
+                    }
+
+                    // Style 3: Sliders (horizontal volume rows)
+                    Flickable {
+                        visible: mixerCard.currentStyle === "sliders"
+                        width: parent.width
+                        height: visible ? Math.min(220, slidersCol.implicitHeight) : 0
+                        contentWidth: width
+                        contentHeight: visible ? slidersCol.implicitHeight : 0
+                        flickableDirection: Flickable.VerticalFlick
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        Column {
+                            id: slidersCol
+                            width: parent.width
+                            spacing: 6
+
+                            Repeater {
+                                model: mixerCard.currentStyle === "sliders" ? App.cranked.knobs : []
+                                delegate: MixerSlider {
+                                    width: slidersCol.width
                                     knob: modelData
                                     knobIndex: index
                                 }
