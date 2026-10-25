@@ -31,10 +31,10 @@ particular.
 |---|---|
 | **Idle** | The clock, the cover of whatever is playing and dots for anything waiting - each of those is a switch, so the pill can carry the day and date instead, or nothing but the time. A satellite blob buds off it while music plays. Green, amber and violet dots join them while an application holds the camera, the microphone or your screen. |
 | **OSD** | Volume, brightness, microphone, keyboard layout, power profile — anything Plasma announces. |
-| **Notification** | App icon or image, summary and body, with a progress bar for the notifications that carry one. Click it and the app that sent it comes forward - Discord lands you back in the conversation, like a Plasma popup does. |
+| **Notification** | App icon or image, summary and body, with a progress bar for notifications that carry one. Supports inline quick reply for KDE Connect SMS directly on the island (returning focus cleanly to your active window) and 1-click open for Vesktop/Discord. |
 | **Media** | Album art, scrolling title, album, spectrum, and transport controls that fade in on hover. While synced lyrics exist, the second line becomes the words being sung. |
 | **Expanded** | Clock, battery, seekable transport, a scrolling lyrics panel, notification history and quick toggles, on one tab - and today's calendar on the other. |
-| **Mixer** | Unfolds live volume dials for each of your application groups and hardware knobs directly inside the island when paired with [Cranked Audio](https://github.com/Zach9113/cranked-audio). Scroll or drag to tune levels, mute apps, or pop out the full mixer. |
+| **Mixer** | Unfolds live volume controls for each of your application groups and hardware knobs directly inside the island when paired with [Cranked Audio](https://github.com/Zach9113/cranked-audio). Choose between 3 interchangeable styles (Knobs, Faders, Sliders), scroll or drag to tune levels, mute apps, or pop out the full mixer. |
 | **Calendar** | Point Atoll at an ICS feed and the dashboard's second tab fills with today's events. The pill mentions the next one when it is less than an hour away. |
 | **Sharing** | Drag files onto the island and it turns into a drop target, then a list of the devices nearby. Files coming the other way ask before they land. |
 | **Assistant** | Hold the island. The screen edges light up, a question box opens, and Claude or Gemini answers — and, one permission at a time, does the thing. When it needs a decision from you, the answers arrive as buttons on the island. |
@@ -78,7 +78,8 @@ and it does not replace Plasma's OSD:
 Atoll includes seamless out-of-the-box integration with [Cranked Audio](https://github.com/Zach9113/cranked-audio) to give you physical or on-screen per-app volume knobs.
 
 When Cranked Audio is running, Atoll automatically adds a **Mixer** toggle to its expanded dashboard:
-- **Dials inside the island:** Scroll anywhere over a dial or drag the ring to adjust group volume with instant visual feedback.
+- **3 Interchangeable Styles:** Choose between circular **Knobs**, studio mixing desk **Faders**, or stacked horizontal **Sliders** that automatically expand to fit all active channels. Cycle between them with a 1-click button in the card header or in Settings > **Behaviour** > **Mixer style**.
+- **Wheel & Drag interaction:** Scroll anywhere over dials, faders, or slider tracks (or drag the thumbs) to adjust volume with instant optimistic visual feedback.
 - **Mute & Actions:** Click the source action button to mute/unmute or trigger your custom action.
 - **Hardware sync:** If you use a physical USB mixer, knob turns and LED colors stay in perfect sync with the island.
 - **Pop-out window:** Click the full-window button to open the main Cranked Audio interface for full configuration.
