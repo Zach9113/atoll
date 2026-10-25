@@ -106,6 +106,7 @@ qt_add_executable(atoll
     src/system/lockmonitor.cpp     src/system/lockmonitor.h
     src/system/privacymonitor.cpp  src/system/privacymonitor.h
     src/system/visualizer.cpp      src/system/visualizer.h
+    src/system/crankedservice.cpp  src/system/crankedservice.h
 
     src/calendar/calendarservice.cpp src/calendar/calendarservice.h
 
@@ -234,6 +235,7 @@ qt_add_qml_module(atoll
         qml/components/RoundButton.qml
         qml/components/QuickToggle.qml
         qml/components/PillButton.qml
+        qml/components/MixerKnob.qml
         qml/components/Ripple.qml
         qml/components/BloubBot.qml
         qml/components/EdgeGlow.qml

@@ -575,12 +575,11 @@ Item {
                 }
 
                 QuickToggle {
+                    visible: App.cranked.available
                     icon: ["io.github.zach9113.CrankedAudio", "audio-card", "multimedia-volume-control"]
                     label: qsTr("Mixer")
-                    onToggled: {
-                        App.openMixer()
-                        view.collapseRequested()
-                    }
+                    checked: mixerCard.open
+                    onToggled: mixerCard.open = !mixerCard.open
                 }
 
                 QuickToggle {
@@ -607,6 +606,114 @@ Item {
                     onToggled: {
                         App.openSettings()
                         view.collapseRequested()
+                    }
+                }
+            }
+
+            // ---- cranked audio mixer -------------------------------------------
+            Rectangle {
+                id: mixerCard
+
+                property bool open: false
+
+                visible: !view.showingCalendar && App.cranked.available && open
+                width: parent.width
+                height: visible ? mixerBody.implicitHeight + 20 : 0
+                radius: 16
+                color: Theme.tint(0.06)
+                clip: true
+
+                Behavior on height {
+                    NumberAnimation {
+                        duration: Theme.normal
+                        easing.type: Easing.OutCubic
+                    }
+                }
+
+                Column {
+                    id: mixerBody
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 8
+
+                    // Header
+                    Item {
+                        width: parent.width
+                        height: 24
+
+                        Row {
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 8
+
+                            IconImage {
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 16
+                                height: 16
+                                names: ["io.github.zach9113.CrankedAudio", "audio-card"]
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: qsTr("Cranked Audio")
+                                color: Theme.foreground
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.size(11)
+                                font.weight: Font.DemiBold
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                visible: App.cranked.profile.length > 0
+                                text: "(" + App.cranked.profile + ")"
+                                color: Theme.muted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.size(10)
+                            }
+                        }
+
+                        RoundButton {
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 22
+                            height: 22
+                            icon: ["window-new", "view-fullscreen"]
+                            onClicked: {
+                                App.cranked.openWindow()
+                                view.collapseRequested()
+                            }
+                        }
+                    }
+
+                    // Knobs Row
+                    Flickable {
+                        width: parent.width
+                        height: 124
+                        contentWidth: Math.max(width, knobsRow.implicitWidth)
+                        contentHeight: 124
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        Row {
+                            id: knobsRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: {
+                                const n = App.cranked.count
+                                if (n <= 1) return 0
+                                const totalKnobWidth = n * 64
+                                const remain = parent.width - totalKnobWidth
+                                return Math.max(6, Math.floor(remain / (n - 1)))
+                            }
+
+                            Repeater {
+                                model: App.cranked.knobs
+                                delegate: MixerKnob {
+                                    width: 64
+                                    modelData: modelData
+                                    index: index
+                                }
+                            }
+                        }
                     }
                 }
             }

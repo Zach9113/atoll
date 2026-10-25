@@ -89,6 +89,7 @@ Application::Application(QObject *parent)
     m_ai = new AiService(m_config, this);
     m_calendar = new CalendarService(m_config, this);
     m_privacy = new PrivacyMonitor(m_config, this);
+    m_cranked = new CrankedService(this);
 
     connect(m_notificationMonitor, &NotificationMonitor::posted, m_notifications, &NotificationModel::onPosted);
     connect(m_notificationMonitor, &NotificationMonitor::idAssigned, m_notifications, &NotificationModel::onIdAssigned);

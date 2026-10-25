@@ -24,6 +24,7 @@
 #include "system/battery.h"
 #include "system/bluetooth.h"
 #include "system/clock.h"
+#include "system/crankedservice.h"
 #include "system/lockmonitor.h"
 #include "system/privacymonitor.h"
 #include "system/visualizer.h"
@@ -61,6 +62,7 @@ class Application : public QObject
     Q_PROPERTY(IpcService *ipc READ ipc CONSTANT)
     Q_PROPERTY(CalendarService *calendar READ calendar CONSTANT)
     Q_PROPERTY(PrivacyMonitor *privacy READ privacy CONSTANT)
+    Q_PROPERTY(CrankedService *cranked READ cranked CONSTANT)
 
     Q_PROPERTY(QString version READ version CONSTANT)
     /** ATOLL_DEBUG_SURFACE=1 paints the whole layer surface, to see its bounds. */
@@ -154,6 +156,10 @@ public:
     {
         return m_privacy;
     }
+    CrankedService *cranked() const
+    {
+        return m_cranked;
+    }
 
     QString version() const;
     QString settingsPage() const;
@@ -213,6 +219,7 @@ private:
     CalendarService *m_calendar = nullptr;
     AppActivator *m_activator = nullptr;
     PrivacyMonitor *m_privacy = nullptr;
+    CrankedService *m_cranked = nullptr;
 
     bool m_busTapActive = false;
     QString m_busError;
