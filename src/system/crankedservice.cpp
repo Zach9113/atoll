@@ -5,6 +5,8 @@
 #include "crankedservice.h"
 
 #include <QDBusConnectionInterface>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QDBusReply>
 #include <QDir>
 #include <QFile>
@@ -114,11 +116,16 @@ void CrankedService::parseState(const QString &stateJson)
 
 void CrankedService::refresh()
 {
+    // Asked without waiting: a busy or starting Cranked Audio must never freeze the island.
     QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("GetState"));
-    const QDBusReply<QString> reply = QDBusConnection::sessionBus().call(msg);
-    if (reply.isValid()) {
-        parseState(reply.value());
-    }
+    auto *watcher = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(msg, 5000), this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [this](QDBusPendingCallWatcher *call) {
+        const QDBusPendingReply<QString> reply = *call;
+        if (reply.isValid()) {
+            parseState(reply.value());
+        }
+        call->deleteLater();
+    });
 }
 
 void CrankedService::setKnob(int index, int percent)
@@ -198,11 +205,19 @@ void CrankedService::setProfile(const QString &name)
 void CrankedService::openWindow()
 {
     QDBusMessage msg = QDBusMessage::createMethodCall(ServiceName, ObjectPath, InterfaceName, QStringLiteral("OpenWindow"));
-    QDBusMessage reply = QDBusConnection::sessionBus().call(msg);
-    if (reply.type() == QDBusMessage::ReplyMessage) {
-        return;
-    }
+    auto *watcher = new QDBusPendingCallWatcher(QDBusConnection::sessionBus().asyncCall(msg, 3000), this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [](QDBusPendingCallWatcher *call) {
+        if (!call->isError()) {
+            call->deleteLater();
+            return;
+        }
+        call->deleteLater();
+        launchWindow();
+    });
+}
 
+void CrankedService::launchWindow()
+{
     const QString localBin = QDir::homePath() + QStringLiteral("/.local/bin/cranked-audio");
     if (QFile::exists(localBin)) {
         QProcess::startDetached(localBin, {});

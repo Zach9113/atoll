@@ -74,6 +74,8 @@ private Q_SLOTS:
 
 private:
     void parseState(const QString &stateJson);
+    /** Starts the Cranked Audio window directly, for when the service doesn't answer. */
+    static void launchWindow();
 
     bool m_available = false;
     bool m_mixerConnected = false;

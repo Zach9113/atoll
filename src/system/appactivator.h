@@ -7,6 +7,7 @@
 #include <QHash>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <functional>
 
 /**
@@ -35,8 +36,8 @@ public:
     /** Raise or launch whatever published this notification. */
     void activate(const QString &desktopEntry, const QString &appName);
 
-    /** Called via D-Bus from KWin script when an active window was found and raised. */
-    Q_INVOKABLE void markActivated();
+    /** Called over D-Bus by the KWin script once it found and raised a window for `request`. */
+    Q_INVOKABLE void markActivated(const QString &request);
 
 private:
     struct DesktopApp {
@@ -51,7 +52,10 @@ private:
 
     std::optional<DesktopApp> resolve(const QString &desktopEntry, const QString &appName) const;
     void bringUp(const DesktopApp &app);
-    bool activateViaKWin(const QString &target);
+    /** Asks KWin to raise a running window; false when the script can't even be written. */
+    bool raiseViaKWin(const QStringList &targets, const QString &desktopEntry, const QString &appName);
+    /** The old way: Activate over D-Bus, or launch it (single-instance apps then raise themselves). */
+    void launchOrActivate(const QString &desktopEntry, const QString &appName);
     void requestToken(const std::function<void(const QString &)> &done);
     static DesktopApp parseDesktopFile(const QString &path);
     static QString expandFieldCodes(QString exec);
@@ -62,5 +66,7 @@ private:
 
     mutable QHash<QString, QString> m_index;
     mutable bool m_indexBuilt = false;
-    bool m_lastActivationSucceeded = false;
+    static constexpr int RaiseWaitMs = 400;
+    QHash<QString, QPair<QString, QString>> m_pendingRaises; //!< request -> (desktop entry, app name) to launch
+    quint64 m_requestCounter = 0;
 };

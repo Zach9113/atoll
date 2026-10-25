@@ -7,15 +7,20 @@
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusMessage>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QTemporaryFile>
+#include <QTimer>
 
 #ifdef ATOLL_XDG_ACTIVATION
 #include <QtGui/qguiapplication_platform.h>
@@ -54,101 +59,119 @@ AppActivator::AppActivator(QObject *parent)
     QDBusConnection::sessionBus().registerObject(u"/Activator"_s, u"org.atoll.Activator"_s, this, QDBusConnection::ExportAllInvokables);
 }
 
-void AppActivator::markActivated()
+void AppActivator::markActivated(const QString &request)
 {
-    m_lastActivationSucceeded = true;
-}
-
-bool AppActivator::activateViaKWin(const QString &target)
-{
-    if (target.trimmed().isEmpty()) {
-        return false;
-    }
-    const QString clean = target.trimmed().toLower();
-    m_lastActivationSucceeded = false;
-
-    QTemporaryFile tempScript;
-    tempScript.setFileTemplate(QDir::tempPath() + u"/atoll-kwin-activate-XXXXXX.js"_s);
-    if (!tempScript.open()) {
-        return false;
-    }
-
-    const QString js = uR"(
-for (const client of workspace.windowList()) {
-    const df = (client.desktopFileName || "").toLowerCase();
-    const rc = (client.resourceClass || "").toLowerCase();
-    const rn = (client.resourceName || "").toLowerCase();
-    const cp = (client.caption || "").toLowerCase();
-    if (df.includes("%1") || rc.includes("%1") || rn.includes("%1") || cp.includes("%1")) {
-        client.minimized = false;
-        workspace.activeWindow = client;
-        callDBus("org.atoll.Atoll", "/Activator", "org.atoll.Activator", "markActivated");
-        break;
-    }
-}
-)"_s.arg(clean);
-
-    tempScript.write(js.toUtf8());
-    tempScript.flush();
-    const QString scriptPath = tempScript.fileName();
-
-    auto msg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
-                                              u"/Scripting"_s,
-                                              u"org.kde.kwin.Scripting"_s,
-                                              u"loadScript"_s);
-    msg << scriptPath;
-    const QDBusMessage reply = QDBusConnection::sessionBus().call(msg, QDBus::Block, 400);
-    if (reply.type() == QDBusMessage::ReplyMessage && !reply.arguments().isEmpty()) {
-        const int scriptId = reply.arguments().at(0).toInt();
-        if (scriptId >= 0) {
-            auto runMsg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
-                                                         u"/Scripting/Script%1"_s.arg(scriptId),
-                                                         u"org.kde.kwin.Script"_s,
-                                                         u"run"_s);
-            QDBusConnection::sessionBus().call(runMsg, QDBus::Block, 400);
-
-            auto unloadMsg = QDBusMessage::createMethodCall(u"org.kde.KWin"_s,
-                                                            u"/Scripting"_s,
-                                                            u"org.kde.kwin.Scripting"_s,
-                                                            u"unloadScript"_s);
-            unloadMsg << scriptPath;
-            QDBusConnection::sessionBus().call(unloadMsg, QDBus::NoBlock);
-        }
-    }
-    return m_lastActivationSucceeded;
+    // KWin found and raised a window for this request: nothing needs launching.
+    m_pendingRaises.remove(request);
 }
 
 void AppActivator::activate(const QString &desktopEntry, const QString &appName)
 {
-    // Try to raise existing window first via KWin Wayland.
-    // Solves single-instance Electron apps (Vesktop, Discord, Slack) that cannot self-raise on Wayland.
+    // Raise a running window through KWin first. Single-instance Electron apps
+    // (Vesktop, Discord, Slack) can't raise themselves on Wayland, and a raise
+    // never opens a second window of anything.
     QStringList targets;
     if (!desktopEntry.isEmpty()) {
-        QString de = desktopEntry;
-        if (de.endsWith(u".desktop"_s)) {
-            de.chop(8);
+        QString entry = desktopEntry;
+        if (entry.endsWith(u".desktop"_s)) {
+            entry.chop(8);
         }
-        targets << de;
+        targets << entry;
     }
     if (!appName.isEmpty()) {
         targets << appName;
+    }
+    const auto app = resolve(desktopEntry, appName);
+    if (app.has_value() && !app->wmClass.isEmpty()) {
+        targets << app->wmClass;
     }
     if (desktopEntry.contains(u"vesktop"_s, Qt::CaseInsensitive) || appName.contains(u"vesktop"_s, Qt::CaseInsensitive)) {
         targets << u"vesktop"_s << u"discord"_s;
     }
     targets.removeDuplicates();
 
-    for (const QString &t : targets) {
-        if (activateViaKWin(t)) {
-            return;
+    if (targets.isEmpty() || !raiseViaKWin(targets, desktopEntry, appName)) {
+        launchOrActivate(desktopEntry, appName);
+    }
+}
+
+bool AppActivator::raiseViaKWin(const QStringList &targets, const QString &desktopEntry, const QString &appName)
+{
+    auto *script = new QTemporaryFile(QDir::tempPath() + u"/atoll-kwin-activate-XXXXXX.js"_s, this);
+    if (!script->open()) {
+        delete script;
+        return false;
+    }
+    const QString request = QString::number(++m_requestCounter);
+
+    QJsonArray lowered;
+    for (const QString &target : targets) {
+        if (!target.trimmed().isEmpty()) {
+            lowered.append(target.trimmed().toLower());
         }
     }
+    // The names come from whoever sent the notification, so they go in as
+    // JSON data, never as script text. Window identity is matched first; the
+    // caption only as a last resort, since titles mention other apps' names.
+    const QString js = uR"(
+const targets = %1;
+const fields = c => [c.desktopFileName, c.resourceClass, c.resourceName].map(f => (f || "").toLowerCase());
+let found = null;
+for (const target of targets) {
+    found = workspace.windowList().find(c => fields(c).some(f => f.includes(target)));
+    if (found) break;
+}
+if (!found) {
+    for (const target of targets) {
+        found = workspace.windowList().find(c => (c.caption || "").toLowerCase().includes(target));
+        if (found) break;
+    }
+}
+if (found) {
+    found.minimized = false;
+    workspace.activeWindow = found;
+    callDBus("org.atoll.Atoll", "/Activator", "org.atoll.Activator", "markActivated", "%2");
+}
+)"_s.arg(QString::fromUtf8(QJsonDocument(lowered).toJson(QJsonDocument::Compact)), request);
+    script->write(js.toUtf8());
+    script->flush();
+    const QString path = script->fileName();
 
+    m_pendingRaises.insert(request, {desktopEntry, appName});
+    // KWin answers in a few milliseconds; past this, launch the app as before.
+    QTimer::singleShot(RaiseWaitMs, this, [this, request, script] {
+        script->deleteLater();
+        if (m_pendingRaises.contains(request)) {
+            const auto [desktopEntry, appName] = m_pendingRaises.take(request);
+            launchOrActivate(desktopEntry, appName);
+        }
+    });
+
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    auto load = QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting"_s, u"org.kde.kwin.Scripting"_s, u"loadScript"_s);
+    load << path;
+    auto *watcher = new QDBusPendingCallWatcher(bus.asyncCall(load, RaiseWaitMs), this);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, [path](QDBusPendingCallWatcher *call) {
+        call->deleteLater();
+        const QDBusPendingReply<int> reply = *call;
+        if (!reply.isValid() || reply.value() < 0) {
+            return; // no KWin scripting: the timer launches the app
+        }
+        QDBusConnection bus = QDBusConnection::sessionBus();
+        bus.asyncCall(QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting/Script%1"_s.arg(reply.value()),
+                                                     u"org.kde.kwin.Script"_s, u"run"_s));
+        auto unload = QDBusMessage::createMethodCall(u"org.kde.KWin"_s, u"/Scripting"_s, u"org.kde.kwin.Scripting"_s,
+                                                     u"unloadScript"_s);
+        unload << path;
+        bus.asyncCall(unload);
+    });
+    return true;
+}
+
+void AppActivator::launchOrActivate(const QString &desktopEntry, const QString &appName)
+{
     const auto app = resolve(desktopEntry, appName);
     if (app.has_value()) {
-        if (!app->wmClass.isEmpty() && activateViaKWin(app->wmClass)) {
-            return;
-        }
         bringUp(*app);
         return;
     }

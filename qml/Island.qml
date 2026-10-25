@@ -202,8 +202,15 @@ Item {
                      + " media=" + App.media + " ipc=" + App.ipc + " busTap=" + App.busTapActive)
     }
 
-    onModeChanged: if (App.debugState) {
-        console.warn("atoll: mode ->", mode, "size", Math.round(width) + "x" + Math.round(height))
+    onModeChanged: {
+        if (App.debugState) {
+            console.warn("atoll: mode ->", mode, "size", Math.round(width) + "x" + Math.round(height))
+        }
+        // Anything that takes the island over (an OSD, the dashboard, the assistant) closes the reply box with
+        // the notification view, so the reply is over: otherwise the island stays stuck on it, holding the keyboard.
+        if (mode !== "notification") {
+            replyActive = false
+        }
     }
 
     // ---- event plumbing --------------------------------------------------
