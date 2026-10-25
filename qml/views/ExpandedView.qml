@@ -730,6 +730,8 @@ Item {
                                 width: 22
                                 height: 22
                                 icon: ["draw-circle", "align-vertical-center", "view-radial"]
+                                tipAlign: "right"
+                                tooltip: Cfg.get("behavior.mixerButtonInsideKnob", false) ? qsTr("Move buttons below the knobs") : qsTr("Put buttons inside the knobs")
                                 onClicked: {
                                     const cur = Cfg.get("behavior.mixerButtonInsideKnob", false)
                                     Cfg.set("behavior.mixerButtonInsideKnob", !cur)
@@ -746,6 +748,13 @@ Item {
                                     if (s === "sliders") return ["view-list-details", "view-media-playlist", "format-align-horizontal-center"]
                                     return ["media-seek-forward", "media-optical-audio", "applications-graphics"]
                                 }
+                                tipAlign: "right"
+                                tooltip: {
+                                    const s = mixerCard.currentStyle
+                                    return qsTr("Layout: %1 (click for %2)").arg(
+                                        s === "faders" ? qsTr("Faders") : s === "sliders" ? qsTr("Sliders") : qsTr("Knobs")).arg(
+                                        s === "faders" ? qsTr("Sliders") : s === "sliders" ? qsTr("Knobs") : qsTr("Faders"))
+                                }
                                 onClicked: {
                                     const cur = mixerCard.currentStyle
                                     const next = cur === "knobs" ? "faders" : (cur === "faders" ? "sliders" : "knobs")
@@ -758,6 +767,8 @@ Item {
                                 width: 22
                                 height: 22
                                 icon: ["window-new", "view-fullscreen"]
+                                tipAlign: "right"
+                                tooltip: qsTr("Open Cranked Audio window")
                                 onClicked: {
                                     App.cranked.openWindow()
                                     view.collapseRequested()

@@ -10,6 +10,9 @@ Item {
     property alias icon: glyph.names
     property real iconScale: 0.52
     property color tint: Theme.foreground
+    property string tooltip: ""
+    property bool tipAbove: false
+    property string tipAlign: "center"   // "center", "left" or "right"
 
     signal clicked()
 
@@ -63,5 +66,38 @@ Item {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: button.clicked()
+    }
+
+    // Hover tooltip (set `tooltip` to enable)
+    Timer {
+        id: tipDelay
+        interval: 450
+        running: button.tooltip.length > 0 && mouse.containsMouse && !mouse.pressed
+    }
+
+    Rectangle {
+        id: tip
+        visible: button.tooltip.length > 0 && mouse.containsMouse && !tipDelay.running && !mouse.pressed
+        z: 1000
+        width: tipText.implicitWidth + 14
+        height: tipText.implicitHeight + 8
+        radius: 6
+        color: Qt.rgba(0.08, 0.08, 0.1, 0.96)
+        border.width: 1
+        border.color: Qt.rgba(1, 1, 1, 0.12)
+        scale: 1 / button.scale
+        y: button.tipAbove ? -height - 4 : button.height + 4
+        x: button.tipAlign === "right" ? button.width - width
+         : button.tipAlign === "left" ? 0
+         : (button.width - width) / 2
+
+        Text {
+            id: tipText
+            anchors.centerIn: parent
+            text: button.tooltip
+            color: Theme.foreground
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.size(9.5)
+        }
     }
 }
