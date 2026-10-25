@@ -82,11 +82,11 @@ Item {
         width: tipText.implicitWidth + 14
         height: tipText.implicitHeight + 8
         radius: 6
-        color: Qt.rgba(0.08, 0.08, 0.1, 0.96)
+        color: Qt.rgba(0.12, 0.12, 0.15, 1.0)
         border.width: 1
-        border.color: Qt.rgba(1, 1, 1, 0.12)
+        border.color: Qt.rgba(1, 1, 1, 0.15)
         scale: 1 / button.scale
-        y: button.tipAbove ? -height - 4 : button.height + 4
+        y: button.tipAbove ? -height - 6 : button.height + 4
         x: button.tipAlign === "right" ? button.width - width
          : button.tipAlign === "left" ? 0
          : (button.width - width) / 2

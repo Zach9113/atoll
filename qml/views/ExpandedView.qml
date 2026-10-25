@@ -625,7 +625,7 @@ Item {
                 height: visible ? mixerBody.implicitHeight + 20 : 0
                 radius: 16
                 color: Theme.tint(0.06)
-                clip: true
+                clip: height < mixerBody.implicitHeight + 15
 
                 Behavior on height {
                     NumberAnimation {
@@ -730,6 +730,7 @@ Item {
                                 width: 22
                                 height: 22
                                 icon: ["draw-circle", "align-vertical-center", "view-radial"]
+                                tipAbove: true
                                 tipAlign: "right"
                                 tooltip: Cfg.get("behavior.mixerButtonInsideKnob", false) ? qsTr("Move buttons below the knobs") : qsTr("Put buttons inside the knobs")
                                 onClicked: {
@@ -748,6 +749,7 @@ Item {
                                     if (s === "sliders") return ["view-list-details", "view-media-playlist", "format-align-horizontal-center"]
                                     return ["media-seek-forward", "media-optical-audio", "applications-graphics"]
                                 }
+                                tipAbove: true
                                 tipAlign: "right"
                                 tooltip: {
                                     const s = mixerCard.currentStyle
@@ -767,6 +769,7 @@ Item {
                                 width: 22
                                 height: 22
                                 icon: ["window-new", "view-fullscreen"]
+                                tipAbove: true
                                 tipAlign: "right"
                                 tooltip: qsTr("Open Cranked Audio window")
                                 onClicked: {
