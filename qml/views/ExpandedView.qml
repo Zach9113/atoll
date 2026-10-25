@@ -15,6 +15,7 @@ import Atoll
 Item {
     id: view
 
+    readonly property bool isViewRoot: true
     readonly property var player: App.media.active
     readonly property bool hasMedia: player !== null && (Cfg.modules.media ?? true)
     readonly property bool hasLyrics: hasMedia && Cfg.lyricsInExpanded
