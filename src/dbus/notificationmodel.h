@@ -43,6 +43,10 @@ public:
         AccentRole,
         TimestampRole,
         AgeRole,
+        HasReplyRole,
+        ReplyPlaceholderRole,
+        IsKdeConnectRole,
+        IsVesktopRole,
     };
     Q_ENUM(Roles)
 
@@ -70,6 +74,8 @@ public:
      * daemon's bus name accept it. See docs/notifications.md.
      */
     Q_INVOKABLE bool invokeAction(quint64 uid, const QString &actionKey);
+    /** Send inline quick reply (emits NotificationReplied over DBus). */
+    Q_INVOKABLE bool sendReply(quint64 uid, const QString &text);
     /**
      * What a click on a notification means: hand the sender its default
      * action - through the daemon where that is possible, re-broadcast where

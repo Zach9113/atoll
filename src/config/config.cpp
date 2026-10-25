@@ -109,7 +109,9 @@ QVariantMap Config::defaults()
     "dnd": false,
     "showActions": true,
     "openOnClick": true,
-    "showTransfers": true
+    "showTransfers": true,
+    "quickReply": true,
+    "restoreFocus": true
   },
   "media": {
     "showOnPlay": true,

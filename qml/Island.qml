@@ -94,6 +94,7 @@ Item {
     readonly property bool aiActive: aiEnabled && App.ai.engaged && !App.ai.background
     /** Still working, but out of the way: only the pill reports it. */
     readonly property bool aiInBackground: aiEnabled && App.ai.background && App.ai.busy
+    property bool replyActive: false
 
     readonly property bool hasMedia: App.media.active !== null && (Cfg.modules.media ?? true)
     /** A drag hovering the island, or a transfer in either direction. */
@@ -138,7 +139,7 @@ Item {
         if (osdTimer.running) {
             return "osd"
         }
-        if ((notificationTimer.running || notificationSticky) && !lockedQuiet) {
+        if ((notificationTimer.running || notificationSticky || replyActive) && !lockedQuiet) {
             return "notification"
         }
         if (mediaTimer.running && !lockedNoMedia) {
@@ -504,8 +505,14 @@ Item {
     // permanently would swallow every shortcut in the session. So the island
     // takes the keyboard only while there is a text field on it, and gives it
     // straight back afterwards.
-    onAiActiveChanged: if (targetWindow) {
-        App.shell.setKeyboardFocus(targetWindow, aiActive)
+    readonly property bool needsKeyboard: aiActive || (replyActive && (Cfg.notifications.quickReply ?? true))
+
+    onNeedsKeyboardChanged: if (targetWindow) {
+        if (Cfg.notifications.restoreFocus ?? true) {
+            App.shell.setKeyboardFocus(targetWindow, needsKeyboard)
+        } else if (needsKeyboard) {
+            App.shell.setKeyboardFocus(targetWindow, true)
+        }
     }
 
     Component.onDestruction: if (targetWindow) {
@@ -649,8 +656,15 @@ Item {
         NotificationView {
             notification: island.currentNotification
             onDismissRequested: {
+                island.replyActive = false
                 island.notificationSticky = false
                 notificationTimer.stop()
+            }
+            onReplyActiveChanged: active => {
+                island.replyActive = active
+                if (active) {
+                    notificationTimer.stop()
+                }
             }
         }
     }

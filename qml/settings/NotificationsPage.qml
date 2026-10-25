@@ -57,6 +57,20 @@ SettingsPage {
         }
 
         BoolSetting {
+            label: qsTr("Quick reply")
+            description: qsTr("Type and send replies to KDE Connect SMS and messaging notifications directly from the island.")
+            key: "notifications.quickReply"
+            defaultValue: true
+        }
+
+        BoolSetting {
+            label: qsTr("Return focus after reply")
+            description: qsTr("Automatically return keyboard focus to your previous active window after sending or dismissing a quick reply.")
+            key: "notifications.restoreFocus"
+            defaultValue: true
+        }
+
+        BoolSetting {
             label: qsTr("Do not disturb")
             description: qsTr("The island collects notifications silently. The same switch sits in the dashboard.")
             key: "notifications.dnd"

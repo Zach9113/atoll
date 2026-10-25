@@ -51,6 +51,10 @@ QHash<int, QByteArray> NotificationModel::roleNames() const
         {AccentRole, "accent"},
         {TimestampRole, "timestamp"},
         {AgeRole, "age"},
+        {HasReplyRole, "hasReply"},
+        {ReplyPlaceholderRole, "replyPlaceholder"},
+        {IsKdeConnectRole, "isKdeConnect"},
+        {IsVesktopRole, "isVesktop"},
     };
 }
 
@@ -89,6 +93,14 @@ QVariant NotificationModel::data(const QModelIndex &index, int role) const
         return item.timestamp;
     case AgeRole:
         return item.timestamp.secsTo(QDateTime::currentDateTime());
+    case HasReplyRole:
+        return item.hasReply;
+    case ReplyPlaceholderRole:
+        return item.replyPlaceholder;
+    case IsKdeConnectRole:
+        return item.isKdeConnect;
+    case IsVesktopRole:
+        return item.isVesktop;
     default:
         return {};
     }
@@ -111,6 +123,10 @@ QVariantMap NotificationModel::toMap(const NotificationData &data) const
         {u"accent"_s, data.accent.isValid() ? QVariant::fromValue(data.accent) : QVariant()},
         {u"transient"_s, data.transient},
         {u"timestamp"_s, data.timestamp},
+        {u"hasReply"_s, data.hasReply},
+        {u"replyPlaceholder"_s, data.replyPlaceholder},
+        {u"isKdeConnect"_s, data.isKdeConnect},
+        {u"isVesktop"_s, data.isVesktop},
     };
 }
 
@@ -257,6 +273,34 @@ void NotificationModel::clear()
     endResetModel();
     Q_EMIT countChanged();
     Q_EMIT latestChanged();
+}
+
+bool NotificationModel::sendReply(quint64 uid, const QString &text)
+{
+    const int row = indexOfUid(uid);
+    if (row < 0 || m_items.at(row).daemonId == 0) {
+        return false;
+    }
+    const NotificationData &item = m_items.at(row);
+
+    // 1. Emit standard NotificationReplied signal
+    auto signal = QDBusMessage::createSignal(u"/org/freedesktop/Notifications"_s,
+                                             u"org.freedesktop.Notifications"_s,
+                                             u"NotificationReplied"_s);
+    signal << item.daemonId << text;
+    const bool sent = QDBusConnection::sessionBus().send(signal);
+
+    // 2. If a specific action key was registered (e.g. inline-reply), invoke ActionInvoked as well
+    if (!item.replyActionKey.isEmpty()) {
+        auto actionSig = QDBusMessage::createSignal(u"/org/freedesktop/Notifications"_s,
+                                                    u"org.freedesktop.Notifications"_s,
+                                                    u"ActionInvoked"_s);
+        actionSig << item.daemonId << item.replyActionKey;
+        QDBusConnection::sessionBus().send(actionSig);
+    }
+
+    dismiss(uid);
+    return sent;
 }
 
 bool NotificationModel::invokeAction(quint64 uid, const QString &actionKey)

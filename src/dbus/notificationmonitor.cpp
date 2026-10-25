@@ -190,6 +190,37 @@ bool NotificationMonitor::handleMessage(const DBusMessageInfo &message)
     data.progress = hints.contains(u"value"_s) ? hints.value(u"value"_s).toInt() : -1;
     data.imageUrl = extractImage(hints, data.uid, &data.accent);
 
+    // Reply capability detection
+    data.replyPlaceholder = hints.value(u"x-kde-reply-placeholder-text"_s).toString();
+    if (!data.replyPlaceholder.isEmpty()) {
+        data.hasReply = true;
+    }
+    for (int i = 0; i + 1 < data.actions.size(); i += 2) {
+        const QString &key = data.actions.at(i);
+        if (key == u"inline-reply"_s || key == u"reply"_s || key == u"x-kde-reply"_s) {
+            data.hasReply = true;
+            data.replyActionKey = key;
+            if (data.replyPlaceholder.isEmpty()) {
+                data.replyPlaceholder = data.actions.at(i + 1);
+            }
+            break;
+        }
+    }
+    if (data.desktopEntry.contains(u"kdeconnect"_s, Qt::CaseInsensitive)
+        || data.appName.compare(u"KDE Connect"_s, Qt::CaseInsensitive) == 0) {
+        data.isKdeConnect = true;
+        data.hasReply = true;
+        if (data.replyPlaceholder.isEmpty()) {
+            data.replyPlaceholder = QStringLiteral("Reply via phone...");
+        }
+    }
+    if (data.desktopEntry.contains(u"vesktop"_s, Qt::CaseInsensitive)
+        || data.appName.contains(u"vesktop"_s, Qt::CaseInsensitive)
+        || data.desktopEntry.contains(u"discord"_s, Qt::CaseInsensitive)
+        || data.appName.contains(u"discord"_s, Qt::CaseInsensitive)) {
+        data.isVesktop = true;
+    }
+
     if (m_config->value(u"notifications.trackIds"_s, true).toBool() && message.serial != 0) {
         m_pending.insert(message.serial, PendingCall{message.sender, data.uid});
         // Never let unanswered calls pile up.

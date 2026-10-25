@@ -32,6 +32,11 @@ struct NotificationData {
     int progress = -1; //!< the "value" hint, -1 when absent
     bool transient = false;
     bool resident = false;
+    bool hasReply = false;
+    QString replyPlaceholder;
+    QString replyActionKey;
+    bool isKdeConnect = false;
+    bool isVesktop = false;
     QColor accent;
     QDateTime timestamp;
 };
