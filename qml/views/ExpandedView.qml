@@ -688,6 +688,18 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 6
 
+                            // Button inside knob toggle (knobs style only)
+                            RoundButton {
+                                visible: mixerCard.currentStyle === "knobs"
+                                width: 22
+                                height: 22
+                                icon: ["draw-circle", "align-vertical-center", "view-radial"]
+                                onClicked: {
+                                    const cur = Cfg.get("behavior.mixerButtonInsideKnob", false)
+                                    Cfg.set("behavior.mixerButtonInsideKnob", !cur)
+                                }
+                            }
+
                             // Style cycle button
                             RoundButton {
                                 width: 22

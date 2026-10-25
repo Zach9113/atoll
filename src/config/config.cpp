@@ -181,6 +181,7 @@ QVariantMap Config::defaults()
     "volumeStep": 5,
     "mixerVolumeStep": 2,
     "mixerStyle": "knobs",
+    "mixerButtonInsideKnob": false,
     "clickAction": "expand",
     "middleClickAction": "playPause",
     "rightClickAction": "settings"

@@ -81,6 +81,13 @@ SettingsPage {
                 { value: "faders", label: qsTr("Faders (mixing desk)") },
                 { value: "sliders", label: qsTr("Sliders (horizontal bars)") }
             ]
+        }
+
+        BoolSetting {
+            label: qsTr("Button inside knob")
+            description: qsTr("In Knobs style, place the channel action button directly inside the circular dial ring.")
+            key: "behavior.mixerButtonInsideKnob"
+            defaultValue: false
             last: true
         }
     }

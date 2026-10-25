@@ -22,6 +22,18 @@ Item {
     readonly property bool isLowered: Boolean(knob.lowered)
     readonly property string sourceText: knob.source || ""
     readonly property string pressAction: knob.press || ""
+    readonly property bool hasAction: pressAction !== "" && pressAction !== "Nothing"
+    readonly property bool buttonInside: Boolean(Cfg.get("behavior.mixerButtonInsideKnob", false))
+
+    function getActionIcon(p) {
+        if (p === "Play/Pause") return ["media-playback-pause", "media-playback-start"]
+        if (p === "Next") return ["media-skip-forward"]
+        if (p === "Previous") return ["media-skip-backward"]
+        if (p === "Mute") return ["audio-volume-muted", "audio-volume-high"]
+        if (p === "Switch output") return ["audio-card", "audio-speakers"]
+        if (p.startsWith("Toggle") || p.startsWith("Turn off")) return ["system-shutdown", "applications-utilities"]
+        return ["view-refresh", "go-next"]
+    }
 
     implicitWidth: 64
     implicitHeight: 126
@@ -40,7 +52,7 @@ Item {
 
     Column {
         anchors.fill: parent
-        spacing: 3
+        spacing: knobItem.buttonInside ? 4 : 3
 
         // Knob Name
         Text {
@@ -112,9 +124,10 @@ Item {
                 }
             }
 
-            // Level text inside the ring
+            // Level text inside the ring (shown when button is NOT inside or channel has no action)
             Text {
                 anchors.centerIn: parent
+                visible: !knobItem.buttonInside || !knobItem.hasAction
                 text: knobItem.isMuted ? qsTr("Mute") : (knobItem.level < 0 ? "–" : (knobItem.level + "%"))
                 color: knobItem.isMuted ? Theme.critical : Theme.foreground
                 font.family: Theme.fontFamily
@@ -160,6 +173,30 @@ Item {
                     }
                 }
             }
+
+            // Action Button placed directly inside the knob ring
+            RoundButton {
+                anchors.centerIn: parent
+                width: 26
+                height: 26
+                visible: knobItem.buttonInside && knobItem.hasAction
+                icon: knobItem.getActionIcon(knobItem.pressAction)
+                onClicked: App.cranked.press(knobItem.knobIndex)
+            }
+        }
+
+        // Level text below dial (shown when button is inside knob)
+        Text {
+            width: parent.width
+            height: visible ? 13 : 0
+            visible: knobItem.buttonInside
+            text: knobItem.isMuted ? qsTr("Mute") : (knobItem.level < 0 ? "–" : (knobItem.level + "%"))
+            color: knobItem.isMuted ? Theme.critical : Theme.foreground
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.size(knobItem.isMuted ? 9 : 10)
+            font.weight: Font.Bold
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
 
         // Source / App Name
@@ -176,28 +213,18 @@ Item {
             maximumLineCount: 1
         }
 
-        // Button Action Pill
+        // Button Action Pill (shown when button is NOT inside knob)
         Item {
             width: parent.width
-            height: 26
+            height: visible ? 26 : 0
+            visible: !knobItem.buttonInside
 
             RoundButton {
                 anchors.centerIn: parent
                 width: 24
                 height: 24
-                visible: knobItem.pressAction !== "" && knobItem.pressAction !== "Nothing"
-
-                icon: {
-                    const p = knobItem.pressAction
-                    if (p === "Play/Pause") return ["media-playback-pause", "media-playback-start"]
-                    if (p === "Next") return ["media-skip-forward"]
-                    if (p === "Previous") return ["media-skip-backward"]
-                    if (p === "Mute") return ["audio-volume-muted", "audio-volume-high"]
-                    if (p === "Switch output") return ["audio-card", "audio-speakers"]
-                    if (p.startsWith("Toggle") || p.startsWith("Turn off")) return ["system-shutdown", "applications-utilities"]
-                    return ["view-refresh", "go-next"]
-                }
-
+                visible: knobItem.hasAction
+                icon: knobItem.getActionIcon(knobItem.pressAction)
                 onClicked: App.cranked.press(knobItem.knobIndex)
             }
         }
