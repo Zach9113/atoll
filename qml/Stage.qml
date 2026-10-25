@@ -154,10 +154,40 @@ Item {
     }
 
     Timer {
+        id: maskTimer
         interval: 40
-        running: true
-        repeat: true
-        triggeredOnStart: true
+        repeat: false
         onTriggered: mask.apply()
     }
+
+    function requestMaskUpdate() {
+        if (!maskTimer.running) {
+            maskTimer.start()
+        }
+    }
+
+    Connections {
+        target: island
+        function onXChanged() { stage.requestMaskUpdate() }
+        function onYChanged() { stage.requestMaskUpdate() }
+        function onWidthChanged() { stage.requestMaskUpdate() }
+        function onHeightChanged() { stage.requestMaskUpdate() }
+        function onSatelliteSizeChanged() { stage.requestMaskUpdate() }
+        function onIsDodgedChanged() { stage.requestMaskUpdate() }
+    }
+
+    Connections {
+        target: stage
+        function onWidthChanged() { stage.requestMaskUpdate() }
+        function onHeightChanged() { stage.requestMaskUpdate() }
+        function onEdgeHoveredChanged() { stage.requestMaskUpdate() }
+    }
+
+    Connections {
+        target: Cfg
+        function onDataChanged() { stage.requestMaskUpdate() }
+    }
+
+    onTargetWindowChanged: mask.apply()
+    Component.onCompleted: mask.apply()
 }

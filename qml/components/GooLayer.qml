@@ -23,6 +23,7 @@ Item {
     property real satelliteRadius: -1
     property color fill: "#0b0b0e"
     property bool gooey: true
+    readonly property bool needsGooey: gooey && (satelliteGeometry.width > 0 || satelliteGeometry.height > 0)
     /**
      * Radius of the blur that creates the merge halo, in pixels. It has to
      * stay well under the size of the smallest body: blur a 32 px circle by
@@ -62,20 +63,19 @@ Item {
         }
     }
 
-    // Plain pass: no shader, shapes drawn as-is.
+    // Plain pass: no shader, shapes drawn as-is when there is no satellite to fuse.
     Bodies {
         anchors.fill: parent
-        visible: !root.shadowMode && !root.gooey
+        visible: !root.shadowMode && !root.needsGooey
     }
 
     // Gooey pass: blur into a layer, then threshold that layer back to a hard
-    // edge. Nesting the two layers is what lets the second effect read the
-    // output of the first.
+    // edge. Only activated when the satellite exists to fuse together.
     Item {
         anchors.fill: parent
-        visible: !root.shadowMode && root.gooey
+        visible: !root.shadowMode && root.needsGooey
 
-        layer.enabled: true
+        layer.enabled: visible
         layer.effect: ShaderEffect {
             // A symmetric blur puts the original outline at exactly 0.5, so
             // cutting there reproduces the shapes at their true size; the
@@ -88,7 +88,7 @@ Item {
 
         Item {
             anchors.fill: parent
-            layer.enabled: true
+            layer.enabled: visible
             layer.effect: MultiEffect {
                 blurEnabled: true
                 blur: 1.0
