@@ -1,11 +1,12 @@
 # Maintainer: jojo2k7
+# Contributor: Zach9113
 #
-# The development package: builds whatever is on the default branch right now.
-# `atoll` is the one to install unless you want to follow along.
+# Development package built from the Zach9113/atoll fork, branch zach-patches:
+# upstream Atoll plus a 12-hour clock without am/pm and `atollctl dodge`.
 pkgname=atoll-git
 pkgver=r1.0000000
 pkgrel=1
-pkgdesc="A dynamic island for KDE Plasma (development version)"
+pkgdesc="A dynamic island for KDE Plasma (development version, zach-patches)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/atoll-shell/atoll"
 license=('GPL-3.0-or-later')
@@ -21,7 +22,7 @@ optdepends=('claude-code: the assistant, signed in with your own account instead
             'xdg-desktop-portal-kde: let the assistant look at your screen')
 provides=('atoll')
 conflicts=('atoll')
-source=("git+$url.git")
+source=("atoll::git+https://github.com/Zach9113/atoll.git#branch=zach-patches")
 sha256sums=('SKIP')
 
 pkgver() {
