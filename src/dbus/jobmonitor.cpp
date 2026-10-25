@@ -77,6 +77,12 @@ NotificationData JobMonitor::finishedEntry(const Job &job)
         entry.body = fileName.isEmpty() ? folder : fileName;
     }
 
+    if (file.isLocalFile() && QFileInfo::exists(file.toLocalFile())) {
+        entry.openUrl = file.toString();
+    } else if (!job.destUrl.isEmpty()) {
+        entry.openUrl = job.destUrl;
+    }
+
     static const QStringList imageSuffixes{u"jpg"_s, u"jpeg"_s, u"png"_s, u"webp"_s, u"gif"_s, u"bmp"_s};
     if (file.isLocalFile() && imageSuffixes.contains(QFileInfo(fileName).suffix().toLower())
         && QFileInfo::exists(file.toLocalFile())) {

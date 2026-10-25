@@ -11,6 +11,8 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusPendingCall>
+#include <QDesktopServices>
+#include <QUrl>
 
 using namespace Qt::StringLiterals;
 
@@ -280,6 +282,14 @@ void NotificationModel::open(quint64 uid)
         return;
     }
     const NotificationData item = m_items.at(row);
+
+    // Entries Atoll made itself (a finished transfer) point at what they are
+    // about; there is no sender to hand the click to.
+    if (!item.openUrl.isEmpty()) {
+        QDesktopServices::openUrl(QUrl(item.openUrl));
+        dismiss(uid);
+        return;
+    }
 
     // The polite path: Plasma's own daemon answers org.kde.Notifications on
     // the same object, and InvokeAction makes *it* emit ActionInvoked from its

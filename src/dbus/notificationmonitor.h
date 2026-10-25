@@ -25,6 +25,7 @@ struct NotificationData {
     QString desktopEntry;
     QString category;
     QString imageUrl;
+    QString openUrl; //!< opened on click instead of raising the app, when set
     QStringList actions; //!< flat [key, label, key, label, ...]
     int urgency = 1; //!< 0 low, 1 normal, 2 critical
     int expireTimeout = -1;
