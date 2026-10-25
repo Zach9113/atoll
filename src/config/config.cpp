@@ -177,6 +177,7 @@ QVariantMap Config::defaults()
     "collapseOnLeave": true,
     "scrollAdjustsVolume": true,
     "volumeStep": 5,
+    "mixerVolumeStep": 2,
     "clickAction": "expand",
     "middleClickAction": "playPause",
     "rightClickAction": "settings"

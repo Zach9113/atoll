@@ -51,6 +51,7 @@ SettingsPage {
 
         NumberSetting {
             label: qsTr("Volume step")
+            description: qsTr("Volume change per scroll notch on the resting island.")
             key: "behavior.volumeStep"
             defaultValue: 5
             from: 1
@@ -58,6 +59,16 @@ SettingsPage {
             suffix: "%"
             enabled: Cfg.get("behavior.scrollAdjustsVolume", true)
             opacity: enabled ? 1 : 0.45
+        }
+
+        NumberSetting {
+            label: qsTr("Mixer volume step")
+            description: qsTr("Volume change per scroll notch on Cranked Audio mixer knobs.")
+            key: "behavior.mixerVolumeStep"
+            defaultValue: 2
+            from: 1
+            to: 25
+            suffix: "%"
             last: true
         }
     }

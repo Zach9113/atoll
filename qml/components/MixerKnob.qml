@@ -31,7 +31,7 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
         onWheel: wheel => {
-            const step = Cfg.behavior.volumeStep ?? 3
+            const step = Cfg.get("behavior.mixerVolumeStep", 2)
             const delta = (wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? step : -step) * (wheel.modifiers & Qt.ShiftModifier ? 2 : 1)
             App.cranked.stepKnob(knobItem.knobIndex, delta)
             wheel.accepted = true
@@ -131,7 +131,7 @@ Item {
                 acceptedButtons: Qt.LeftButton
 
                 onWheel: wheel => {
-                    const step = Cfg.behavior.volumeStep ?? 3
+                    const step = Cfg.get("behavior.mixerVolumeStep", 2)
                     const delta = (wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? step : -step) * (wheel.modifiers & Qt.ShiftModifier ? 2 : 1)
                     App.cranked.stepKnob(knobItem.knobIndex, delta)
                     wheel.accepted = true
