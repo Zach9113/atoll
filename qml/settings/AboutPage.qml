@@ -73,6 +73,37 @@ SettingsPage {
             }
         }
 
+        // How far an update has got, so a build that takes a while does not look stuck.
+        Item {
+            width: parent.width
+            height: 14
+            visible: App.updater.percent >= 0
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                height: 6
+                radius: 3
+                color: Skin.line
+
+                Rectangle {
+                    width: parent.width * Math.max(0, App.updater.percent) / 100
+                    height: parent.height
+                    radius: parent.radius
+                    color: Skin.accent
+
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: 250
+                        }
+                    }
+                }
+            }
+        }
+
         BoolSetting {
             label: qsTr("Check for updates")
             description: qsTr("Two minutes after Atoll starts and every six hours. It only asks GitHub for the latest release.")

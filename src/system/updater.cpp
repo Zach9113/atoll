@@ -152,7 +152,49 @@ void Updater::fail(const QString &message)
     delete m_lock;
     m_lock = nullptr;
     m_installAfterCheck = false;
+    setPercent(-1, {});
     setState(u"failed"_s, message);
+}
+
+void Updater::setPercent(int percent, const QString &text)
+{
+    if (percent == m_percent) {
+        return;
+    }
+    m_percent = percent;
+    Q_EMIT percentChanged();
+    if (percent >= 0) {
+        Q_EMIT progress(u"system-software-update"_s, percent, text);
+    }
+}
+
+void Updater::onBuildOutput()
+{
+    const QByteArray output = m_process->readAllStandardOutput();
+    if (m_log) {
+        m_log->write(output);
+    }
+    m_pendingOutput += output;
+
+    // makepkg's own steps, then ninja's "[done/total]" for the long part in between.
+    static const QRegularExpression ninjaStep(u"^\\[(\\d+)/(\\d+)\\]"_s);
+    const QString building = i18n("Building Atoll %1", m_latestVersion);
+    qsizetype end;
+    while ((end = m_pendingOutput.indexOf('\n')) >= 0) {
+        const QString line = QString::fromLocal8Bit(m_pendingOutput.left(end)).trimmed();
+        m_pendingOutput.remove(0, end + 1);
+        if (line.startsWith(u"==> Retrieving sources"_s)) {
+            setPercent(5, i18n("Downloading Atoll %1", m_latestVersion));
+        } else if (line.startsWith(u"==> Starting build()"_s)) {
+            setPercent(10, building);
+        } else if (const auto match = ninjaStep.match(line); match.hasMatch() && match.captured(2).toInt() > 0) {
+            setPercent(10 + 75 * match.captured(1).toInt() / match.captured(2).toInt(), building);
+        } else if (line.startsWith(u"==> Starting package()"_s)) {
+            setPercent(87, building);
+        } else if (line.startsWith(u"==> Creating package"_s)) {
+            setPercent(90, building);
+        }
+    }
 }
 
 void Updater::check()
@@ -297,7 +339,7 @@ void Updater::build()
 
     const QString text = i18n("Building Atoll %1. This takes a few minutes.", m_latestVersion);
     setState(u"building"_s, text);
-    Q_EMIT progress(u"system-software-update"_s, text);
+    setPercent(1, i18n("Updating Atoll to %1", m_latestVersion));
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(dir);
@@ -311,14 +353,20 @@ void Updater::build()
     environment.insert(u"BUILDDIR"_s, dir + u"/build"_s);
     m_process->setProcessEnvironment(environment);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
-    m_process->setStandardOutputFile(dir + u"/build.log"_s);
+    m_log = new QFile(dir + u"/build.log"_s, this);
+    m_log->open(QIODevice::WriteOnly);
+    connect(m_process, &QProcess::readyReadStandardOutput, this, &Updater::onBuildOutput);
     connect(m_process, &QProcess::finished, this, [this, dir](int code, QProcess::ExitStatus status) {
+        onBuildOutput();
+        delete m_log;
+        m_log = nullptr;
+        m_pendingOutput.clear();
         m_process->deleteLater();
         m_process = nullptr;
         if (status != QProcess::NormalExit || code != 0) {
             const QString error = lastError(dir + u"/build.log"_s);
             fail(i18n("The build failed: %1 (log: %2/build.log)", error, dir));
-            Q_EMIT progress(u"dialog-error"_s, i18n("The Atoll update failed to build."));
+            Q_EMIT announce(u"dialog-error"_s, i18n("The Atoll update failed to build."));
             return;
         }
         const QStringList packages = QDir(dir).entryList({u"%1-*.pkg.tar.*"_s.arg(PackageName)}, QDir::Files);
@@ -338,7 +386,7 @@ void Updater::installPackage(const QString &package)
 {
     const QString text = i18n("Atoll %1 is built. Enter your password to install it.", m_latestVersion);
     setState(u"installing"_s, text);
-    Q_EMIT progress(u"system-software-update"_s, text);
+    setPercent(94, text);
 
     const QString log = workDir() + u"/install.log"_s;
     m_process = new QProcess(this);
@@ -353,14 +401,14 @@ void Updater::installPackage(const QString &package)
         }
         if (status != QProcess::NormalExit || code != 0) {
             fail(i18n("pacman could not install it: %1", lastError(log)));
-            Q_EMIT progress(u"dialog-error"_s, i18n("The Atoll update could not be installed."));
+            Q_EMIT announce(u"dialog-error"_s, i18n("The Atoll update could not be installed."));
             return;
         }
         delete m_lock;
         m_lock = nullptr;
         const QString done = i18n("Updated to Atoll %1. Restarting…", m_latestVersion);
         setState(u"upToDate"_s, done);
-        Q_EMIT progress(u"system-software-update"_s, done);
+        setPercent(100, done);
         // Long enough for the island to show that it worked before it goes.
         QTimer::singleShot(2000, this, &Updater::restartIsland);
     });

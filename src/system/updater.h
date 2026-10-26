@@ -11,6 +11,7 @@
 #include "dbus/notificationmonitor.h"
 
 class Config;
+class QFile;
 class QLockFile;
 class QNetworkAccessManager;
 class QTimer;
@@ -42,6 +43,8 @@ class Updater : public QObject
     /** Whether this install can update itself, rather than only being told. */
     Q_PROPERTY(bool canInstall READ canInstall CONSTANT)
     Q_PROPERTY(bool busy READ busy NOTIFY stateChanged)
+    /** How far an update has got, 0-100, or -1 when none is running. */
+    Q_PROPERTY(int percent READ percent NOTIFY percentChanged)
 
 public:
     /** The openUrl of the island's "update available" entry. */
@@ -74,6 +77,10 @@ public:
         return m_canInstall;
     }
     bool busy() const;
+    int percent() const
+    {
+        return m_percent;
+    }
 
     Q_INVOKABLE void check();
     /** Build and install the latest release, or open its page when this install cannot update itself. */
@@ -88,12 +95,17 @@ Q_SIGNALS:
     void stateChanged();
     /** A newer release than the one running was found, once per version. */
     void available(const NotificationData &entry);
-    /** A step worth putting on the island while the settings window is shut. */
-    void progress(const QString &icon, const QString &text);
+    void percentChanged();
+    /** A message worth putting on the island while the settings window is shut. */
+    void announce(const QString &icon, const QString &text);
+    /** The same, with how far the update has got, for the island's progress bar. */
+    void progress(const QString &icon, int percent, const QString &text);
 
 private:
     void setState(const QString &state, const QString &message);
     void fail(const QString &message);
+    void setPercent(int percent, const QString &text);
+    void onBuildOutput();
     void onReleaseReply(const QByteArray &body);
     void build();
     void installPackage(const QString &package);
@@ -113,4 +125,7 @@ private:
     QString m_announcedVersion;
     bool m_canInstall = false;
     bool m_installAfterCheck = false;
+    int m_percent = -1;
+    QByteArray m_pendingOutput;
+    QFile *m_log = nullptr;
 };
