@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(atoll
-    VERSION 0.1.0
+    VERSION 0.2.0
     DESCRIPTION "A dynamic island for KDE Plasma"
     HOMEPAGE_URL "https://github.com/atoll-shell/atoll"
     # C is only here for the Wayland protocol code wayland-scanner generates.
