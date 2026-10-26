@@ -92,6 +92,7 @@ Application::Application(QObject *parent)
     m_calendar = new CalendarService(m_config, this);
     m_privacy = new PrivacyMonitor(m_config, this);
     m_cranked = new CrankedService(this);
+    m_updater = new Updater(m_config, this);
 
     connect(m_notificationMonitor, &NotificationMonitor::posted, m_notifications, &NotificationModel::onPosted);
     connect(m_notificationMonitor, &NotificationMonitor::idAssigned, m_notifications, &NotificationModel::onIdAssigned);
@@ -105,6 +106,10 @@ Application::Application(QObject *parent)
     connect(m_driveMonitor, &DriveMonitor::disconnected, m_notifications, &NotificationModel::dismiss);
     connect(m_driveMonitor, &DriveMonitor::failed, m_osd, &OsdMonitor::showText);
     connect(m_notifications, &NotificationModel::internalUrlOpened, m_driveMonitor, &DriveMonitor::open);
+
+    connect(m_updater, &Updater::available, m_notifications, &NotificationModel::onPosted);
+    connect(m_updater, &Updater::progress, m_osd, &OsdMonitor::showText);
+    connect(m_notifications, &NotificationModel::internalUrlOpened, m_updater, &Updater::open);
 
     connect(m_ipc, &IpcService::textRequested, m_osd, &OsdMonitor::showText);
     connect(m_ipc, &IpcService::progressRequested, m_osd, &OsdMonitor::showProgress);
@@ -195,6 +200,7 @@ void Application::start()
     // Discovery only starts once the island is really up: a settings window
     // has no business announcing itself to the network.
     m_share->start();
+    m_updater->startChecking();
 }
 
 void Application::onBusMessage(const DBusMessageInfo &message)

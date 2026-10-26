@@ -96,6 +96,9 @@ QVariantMap Config::defaults()
     "ai": true,
     "privacy": true
   },
+  "updates": {
+    "check": true
+  },
   "osd": {
     "timeout": 1700,
     "showMediaPlayerVolume": true

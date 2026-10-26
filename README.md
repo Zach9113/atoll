@@ -161,6 +161,22 @@ Two things are worth doing from an installed copy rather than a build
 directory: the lock screen (see [below](#on-the-lock-screen)) and the
 assistant, whose permission gate is the installed binary itself.
 
+### Updates
+
+Atoll looks for a new release on
+[Zach9113/atoll](https://github.com/Zach9113/atoll/releases) two minutes after it
+starts and every six hours after that, and says so on the island when there is
+one. When pacman owns the install as `atoll-git` (what `install-both.sh` sets
+up), clicking it builds the tagged release with `makepkg` in the background at
+low priority, asks for your password in Plasma's usual dialog, installs it and
+restarts the island. Releases are built here rather than downloaded because
+Atoll uses Qt's private API, so it has to be built against the Qt you have.
+Any other install is only pointed at the release page.
+
+**Settings → About** shows the same and has a **Check now** button; turn the
+automatic checks off with `updates.check`. The build and its log are kept in
+`~/.cache/atoll/update`.
+
 ## The dashboard
 
 Click the island and it unfolds. The clock and the date sit at the top, then
@@ -503,6 +519,7 @@ while you watch. Keys you are most likely to want:
 | `effects.gooey` | The metaball merge between the island and its satellite. |
 | `notifications.ignoredApps` | Apps the island should stay quiet about. |
 | `notifications.openOnClick` | Whether clicking a notification raises or starts the app that sent it. |
+| `updates.check` | Whether Atoll looks for a new release on its own (see [Updates](#updates)). |
 | `notifications.showDrives` | Whether plugging in a USB stick, SD card or external disk shows on the island; clicking it opens the drive. |
 | `notifications.showTransfers` | Whether file transfers and copies (KDE Connect, Dolphin, other KIO jobs) show their progress on the island. |
 | `modules.privacy` | The camera, microphone and screen-share dots on the resting island. |

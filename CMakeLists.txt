@@ -108,6 +108,7 @@ qt_add_executable(atoll
     src/system/visualizer.cpp      src/system/visualizer.h
     src/system/crankedservice.cpp  src/system/crankedservice.h
     src/system/drivemonitor.cpp    src/system/drivemonitor.h
+    src/system/updater.cpp         src/system/updater.h
 
     src/calendar/calendarservice.cpp src/calendar/calendarservice.h
 
@@ -278,6 +279,13 @@ qt_add_qml_module(atoll
         qml/settings/AboutPage.qml
     RESOURCES
         data/icons/atoll.svg
+)
+
+# The updater builds a release from the same recipe the package is made with.
+qt_add_resources(atoll "atoll_packaging"
+    PREFIX "/atoll"
+    FILES
+        packaging/PKGBUILD-git
 )
 
 qt6_add_shaders(atoll "atoll_shaders"

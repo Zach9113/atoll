@@ -12,6 +12,11 @@ SettingsPage {
     property bool confirmingReset: false
     property bool islandUp: App.islandRunning()
 
+    Component.onCompleted: {
+        if (App.updater.state === "idle" && Cfg.get("updates.check", true))
+            App.updater.check()
+    }
+
     SettingsGroup {
         title: qsTr("Status")
 
@@ -36,6 +41,44 @@ SettingsPage {
                     page.islandUp = true
                 }
             }
+        }
+    }
+
+    SettingsGroup {
+        title: qsTr("Updates")
+
+        SettingRow {
+            label: qsTr("Atoll %1").arg(App.version)
+            description: {
+                const updater = App.updater
+                if (updater.state === "idle")
+                    return updater.canInstall
+                           ? qsTr("Updates come from the releases on github.com/Zach9113/atoll.")
+                           : qsTr("This copy was not installed as the atoll-git package, so updating only opens the release page.")
+                return updater.message
+            }
+
+            PushButton {
+                text: App.updater.state === "available"
+                      ? (App.updater.canInstall ? qsTr("Update to %1").arg(App.updater.latestVersion) : qsTr("See release"))
+                      : App.updater.busy ? qsTr("Working…") : qsTr("Check now")
+                enabled: !App.updater.busy
+                opacity: enabled ? 1 : 0.45
+                onClicked: {
+                    if (App.updater.state === "available")
+                        App.updater.install()
+                    else
+                        App.updater.check()
+                }
+            }
+        }
+
+        BoolSetting {
+            label: qsTr("Check for updates")
+            description: qsTr("Two minutes after Atoll starts and every six hours. It only asks GitHub for the latest release.")
+            key: "updates.check"
+            defaultValue: true
+            last: true
         }
     }
 

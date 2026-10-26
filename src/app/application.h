@@ -27,6 +27,7 @@
 #include "system/crankedservice.h"
 #include "system/lockmonitor.h"
 #include "system/privacymonitor.h"
+#include "system/updater.h"
 #include "system/visualizer.h"
 
 class DBusMonitor;
@@ -64,6 +65,7 @@ class Application : public QObject
     Q_PROPERTY(CalendarService *calendar READ calendar CONSTANT)
     Q_PROPERTY(PrivacyMonitor *privacy READ privacy CONSTANT)
     Q_PROPERTY(CrankedService *cranked READ cranked CONSTANT)
+    Q_PROPERTY(Updater *updater READ updater CONSTANT)
 
     Q_PROPERTY(QString version READ version CONSTANT)
     /** ATOLL_DEBUG_SURFACE=1 paints the whole layer surface, to see its bounds. */
@@ -161,6 +163,10 @@ public:
     {
         return m_cranked;
     }
+    Updater *updater() const
+    {
+        return m_updater;
+    }
 
     QString version() const;
     QString settingsPage() const;
@@ -222,6 +228,7 @@ private:
     AppActivator *m_activator = nullptr;
     PrivacyMonitor *m_privacy = nullptr;
     CrankedService *m_cranked = nullptr;
+    Updater *m_updater = nullptr;
 
     bool m_busTapActive = false;
     QString m_busError;
