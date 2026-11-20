@@ -98,6 +98,7 @@ void MprisManager::addPlayer(const QString &service)
 
     connect(player, &MprisPlayer::playbackChanged, this, &MprisManager::reevaluateActive);
     connect(player, &MprisPlayer::identityChanged, this, &MprisManager::playersChanged);
+    connect(player, &MprisPlayer::pagePreviewChanged, this, &MprisManager::reevaluateActive);
     connect(player, &MprisPlayer::metadataChanged, this, [this, player] {
         if (player == m_active) {
             Q_EMIT trackChanged();
@@ -148,7 +149,7 @@ void MprisManager::reevaluateActive()
     const auto pickPreferred = [this, &preferred](bool playingOnly) -> MprisPlayer * {
         for (const QString &pattern : preferred) {
             for (MprisPlayer *player : std::as_const(m_players)) {
-                if (playingOnly && !player->playing()) {
+                if (player->isPagePreview() || (playingOnly && !player->playing())) {
                     continue;
                 }
                 if (player->service().contains(pattern, Qt::CaseInsensitive)
@@ -167,7 +168,7 @@ void MprisManager::reevaluateActive()
     if (!chosen) {
         // Otherwise: whatever is playing, most recently started first.
         for (MprisPlayer *player : std::as_const(m_players)) {
-            if (!player->playing()) {
+            if (!player->playing() || player->isPagePreview()) {
                 continue;
             }
             if (!chosen || player->lastPlayedAt() > chosen->lastPlayedAt()) {
@@ -180,11 +181,17 @@ void MprisManager::reevaluateActive()
         chosen = pickPreferred(false);
     }
 
-    if (!chosen && m_active && m_players.contains(m_active)) {
+    if (!chosen && m_active && m_players.contains(m_active) && !m_active->isPagePreview()) {
         chosen = m_active; // Keep showing a paused player rather than nothing.
     }
-    if (!chosen && !m_players.isEmpty()) {
-        chosen = m_players.first();
+    if (!chosen) {
+        // A browser tab showing previews is no media at all, so it never fills in.
+        for (MprisPlayer *player : std::as_const(m_players)) {
+            if (!player->isPagePreview()) {
+                chosen = player;
+                break;
+            }
+        }
     }
 
     if (chosen != m_active) {
@@ -199,7 +206,7 @@ void MprisManager::reevaluateActive()
 bool MprisManager::anyPlaying() const
 {
     for (const MprisPlayer *player : m_players) {
-        if (player->playing()) {
+        if (player->playing() && !player->isPagePreview()) {
             return true;
         }
     }

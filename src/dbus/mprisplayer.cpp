@@ -263,6 +263,22 @@ void MprisPlayer::applyPlayerProperties(const QVariantMap &properties)
     }
 }
 
+namespace
+{
+bool isYouTubePagePreview(const QString &address)
+{
+    const QUrl url(address);
+    const QString host = url.host().toLower();
+    // music.youtube.com is a player of its own; its pages are what is playing.
+    if (host != u"youtube.com"_s && host != u"www.youtube.com"_s && host != u"m.youtube.com"_s) {
+        return false;
+    }
+    const QString path = url.path();
+    return !(path.startsWith(u"/watch"_s) || path.startsWith(u"/shorts/"_s) || path.startsWith(u"/live/"_s)
+             || path.startsWith(u"/embed/"_s));
+}
+} // namespace
+
 void MprisPlayer::applyMetadata(const QVariantMap &metadata)
 {
     const QString title = metadata.value(u"xesam:title"_s).toString();
@@ -283,9 +299,14 @@ void MprisPlayer::applyMetadata(const QVariantMap &metadata)
     m_length = length;
     m_trackId = trackId;
     m_url = url;
+    const bool pagePreview = isYouTubePagePreview(url);
 
     if (changed) {
         Q_EMIT metadataChanged();
+    }
+    if (pagePreview != m_pagePreview) {
+        m_pagePreview = pagePreview;
+        Q_EMIT pagePreviewChanged();
     }
     if (art != m_rawArtUrl) {
         m_rawArtUrl = art;

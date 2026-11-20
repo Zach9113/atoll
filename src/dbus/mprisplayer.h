@@ -105,6 +105,15 @@ public:
         return m_playbackStatus;
     }
     bool playing() const;
+    /**
+     * A web page's preview rather than something chosen to watch: YouTube plays thumbnails silently on the home
+     * page, in search and in feeds, and the browser reports each as playing. Only the pages that hold a video
+     * (/watch, /shorts/, /live/, /embed/) are media; the address is the page's, not the preview's.
+     */
+    bool isPagePreview() const
+    {
+        return m_pagePreview;
+    }
     qint64 position() const
     {
         return m_position;
@@ -177,6 +186,8 @@ private Q_SLOTS:
 Q_SIGNALS:
     void identityChanged();
     void metadataChanged();
+    /** isPagePreview() flipped, for example when the tab left a video for the home page. */
+    void pagePreviewChanged();
     void artChanged();
     void playbackChanged();
     void positionChanged();
@@ -201,6 +212,7 @@ private:
     QString m_album;
     QString m_artUrl;
     QString m_url;
+    bool m_pagePreview = false;
     QString m_rawArtUrl;
     QString m_trackId;
     QColor m_accent;
