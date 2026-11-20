@@ -106,6 +106,7 @@ Application::Application(QObject *parent)
     connect(m_driveMonitor, &DriveMonitor::disconnected, m_notifications, &NotificationModel::dismiss);
     connect(m_driveMonitor, &DriveMonitor::failed, m_osd, &OsdMonitor::showText);
     connect(m_notifications, &NotificationModel::internalUrlOpened, m_driveMonitor, &DriveMonitor::open);
+    connect(m_notifications, &NotificationModel::replyFailed, m_osd, &OsdMonitor::showText);
 
     connect(m_updater, &Updater::available, m_notifications, &NotificationModel::onPosted);
     connect(m_updater, &Updater::progress, m_osd, &OsdMonitor::showProgress);

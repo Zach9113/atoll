@@ -109,6 +109,7 @@ qt_add_executable(atoll
     src/system/crankedservice.cpp  src/system/crankedservice.h
     src/system/drivemonitor.cpp    src/system/drivemonitor.h
     src/system/updater.cpp         src/system/updater.h
+    src/dbus/kdeconnectreply.cpp   src/dbus/kdeconnectreply.h
 
     src/calendar/calendarservice.cpp src/calendar/calendarservice.h
 

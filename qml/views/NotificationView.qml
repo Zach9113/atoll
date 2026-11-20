@@ -355,6 +355,10 @@ Item {
         onClicked: mouse => {
             if (mouse.button === Qt.MiddleButton) {
                 App.notifications.close(view.notification.uid ?? 0)
+            } else if ((view.notification.isKdeConnect ?? false) && view.hasReplyOption) {
+                // a phone's message has no app on this PC to open; clicking it means answering it
+                view.replying = true
+                return
             } else {
                 // Hand the app its default action and bring it forward, the
                 // way a Plasma popup does.

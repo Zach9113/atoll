@@ -6,6 +6,7 @@
 
 #include "app/imagestore.h"
 #include "config/config.h"
+#include "dbus/kdeconnectreply.h"
 #include "system/appactivator.h"
 
 #include <QDBusConnection>
@@ -282,6 +283,17 @@ bool NotificationModel::sendReply(quint64 uid, const QString &text)
         return false;
     }
     const NotificationData &item = m_items.at(row);
+
+    // A phone's message goes back through KDE Connect, which never hears the daemon's reply signal from us.
+    if (item.isKdeConnect) {
+        QString error;
+        if (!replyThroughKdeConnect(item.summary, item.body, text, &error)) {
+            Q_EMIT replyFailed(u"dialog-error"_s, error);
+            return false;
+        }
+        dismiss(uid);
+        return true;
+    }
 
     // 1. Emit standard NotificationReplied signal
     auto signal = QDBusMessage::createSignal(u"/org/freedesktop/Notifications"_s,

@@ -97,6 +97,8 @@ Q_SIGNALS:
     void arrived(const QVariantMap &notification);
     /** An entry Atoll made itself was clicked and points at an atoll-... URL only Atoll can open. */
     void internalUrlOpened(const QString &url);
+    /** A reply could not be sent, for the island to say so. */
+    void replyFailed(const QString &icon, const QString &text);
 
 private:
     int indexOfUid(quint64 uid) const;
