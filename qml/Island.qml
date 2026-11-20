@@ -146,7 +146,9 @@ Item {
         if ((notificationTimer.running || notificationSticky || replyActive) && !lockedQuiet) {
             return "notification"
         }
-        if (mediaTimer.running && !lockedNoMedia) {
+        // the peek ends with the media: a player dropped mid-peek (a YouTube tab back on the home page) would
+        // otherwise leave an empty view up until the timer runs out
+        if (mediaTimer.running && hasMedia && !lockedNoMedia) {
             return "media"
         }
         if (hovered && hasMedia && !lockedNoMedia && (Cfg.behavior.hoverPeek ?? true)) {
